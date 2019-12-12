@@ -1,0 +1,66 @@
+{
+	"appId": "RGIO-host-id",
+	"productName": "RGIO-host",
+	"copyright": "Copyright © 2019 ${author}",
+	"asar": false,
+	"directories": {
+		"output": "./dist"
+		// "app": ""
+	},
+	"win": {
+		"target": [
+			{
+				"target": "nsis",
+				"arch": ["x64"]
+			}
+		]
+	},
+	"linux": {
+		"target": [
+			{
+				"target": "snap",
+				"arch": ["x64"]
+			}
+		]
+	},
+	"nsis": {
+		// "include": "./installers/installer.nsh",
+		"license": "./eula/eula.txt",
+		"oneClick": true,
+		"perMachine": false,
+		"allowElevation": true,
+		"allowToChangeInstallationDirectory": false,
+		"artifactName": "${productName}-setup-v${version}.${ext}",
+		"createDesktopShortcut": true,
+		"createStartMenuShortcut": true
+		// "publish": {
+		// 	"provider": "s3",
+		// 	"bucket": "RGIO-host",
+		// 	"acl": "public-read",
+		// 	"storageClass": "STANDARD",
+		// 	"encryption": "AES256",
+		// 	"channel": "latest",
+		// 	"path": "/",
+		// 	"endpoint": "https://s3.amazonaws.com"
+		// }
+	},
+	"nsisWeb": {},
+	"publish": {
+		"provider": "generic",
+		"url": "https://rgio-host.s3.amazonaws.com",
+		"channel": "latest"
+	},
+	"files": [
+		"!eula",
+		"!.babelrc",
+		"!.prettierrc",
+		"!README.md",
+		"!*.log",
+		"!*.bat",
+		"!webpack.*.js",
+		"!bundles/*.map",
+		"!src"
+	],
+	"extraResources": "",
+	"extraFiles": ""
+}
