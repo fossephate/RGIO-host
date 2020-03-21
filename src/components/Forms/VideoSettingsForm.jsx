@@ -7,7 +7,6 @@ import { Field, reduxForm, formValueSelector } from "redux-form";
 
 // material ui:
 import {
-	withStyles,
 	TextField,
 	Checkbox,
 	InputLabel,
@@ -23,11 +22,13 @@ import {
 	OutlinedInput,
 } from "@material-ui/core";
 
+import { withStyles } from "@material-ui/core/styles";
+
 // recompose:
 import { compose } from "recompose";
 
-// device sizes:
-import { device } from "src/constants/DeviceSizes.js";
+// libs:
+import { device } from "shared/libs/utils.js";
 
 const { desktopCapturer } = require("electron");
 
@@ -163,9 +164,11 @@ const styles = (theme) => ({
 	root: {
 		display: "grid",
 		gridGap: "10px",
-		padding: "4% 4% 0 4%",
+		padding: "10px 10px 0 10px",
 		width: "100%",
 		userSelect: "none",
+		overflowY: "auto",
+		marginRight: "15px",
 
 		"&>div": {
 			display: "grid",
@@ -214,12 +217,6 @@ class VideoSettingsForm extends Component {
 	constructor(props) {
 		super(props);
 
-		this.getWindowTitles = this.getWindowTitles.bind(this);
-		this.getAudioDeviceNames = this.getAudioDeviceNames.bind(this);
-		this.agreeTOS = this.agreeTOS.bind(this);
-		this.checkForDrivers = this.checkForDrivers.bind(this);
-		this.handleInstallDrivers = this.handleInstallDrivers.bind(this);
-
 		this.windowTitles = [];
 		this.dshowDevices = [];
 		this.audioDeviceNames = [];
@@ -229,7 +226,7 @@ class VideoSettingsForm extends Component {
 		};
 	}
 
-	checkForDrivers() {
+	checkForDrivers = () => {
 		// check for ViGEm Drivers:
 		this.driversNeeded = false;
 
@@ -269,13 +266,13 @@ class VideoSettingsForm extends Component {
 		return true;
 	}
 
-	agreeTOS(event) {
+	agreeTOS = (event) => {
 		this.setState({ TOSAgreed: event.target.checked });
 	}
 
-	handleInstallDrivers() {
+	handleInstallDrivers = () => {
 		if (window.process.platform === "win32") {
-			let installerLocation = app.getAppPath() + "\\installers\\vigem-setup.exe";
+			let installerLocation = app.getAppPath() + "\\misc\\installers\\vigem-setup.exe";
 			let childProcess = spawn(installerLocation);
 			childProcess.on("close", () => {
 				this.checkForDrivers();
@@ -302,7 +299,7 @@ class VideoSettingsForm extends Component {
 	// 	return menuItems;
 	// }
 
-	getWindowTitles() {
+	getWindowTitles = () => {
 		let windowTitles = [];
 
 		desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sources) => {
@@ -313,7 +310,7 @@ class VideoSettingsForm extends Component {
 		});
 	}
 
-	getDshowDevices() {
+	getDshowDevices = () => {
 		let ffmpegLocation = app.getAppPath() + "\\utils\\ffmpeg.exe";
 		let childProcess = require("child_process").execFile(
 			ffmpegLocation,
@@ -333,7 +330,7 @@ class VideoSettingsForm extends Component {
 		);
 	}
 
-	getWindowTitleMenuItems() {
+	getWindowTitleMenuItems = () => {
 		let menuItems = [];
 		menuItems.push(
 			<MenuItem key={0} value={0}>
@@ -350,7 +347,7 @@ class VideoSettingsForm extends Component {
 		return menuItems;
 	}
 
-	getDshowDeviceMenuItems() {
+	getDshowDeviceMenuItems = () => {
 		let menuItems = [];
 		menuItems.push(
 			<MenuItem key={0} value={0}>
@@ -367,7 +364,7 @@ class VideoSettingsForm extends Component {
 		return menuItems;
 	}
 
-	getAudioDeviceNames() {
+	getAudioDeviceNames = () => {
 		let audioDeviceNames = [];
 		// let ffmpegLocation = app.getAppPath() + "\\hostVideo\\ffmpeg\\ffmpeg.exe";
 		// let childProcess = require("child_process").execFile(
@@ -472,7 +469,7 @@ class VideoSettingsForm extends Component {
 					/>
 				</div>
 
-				<div>
+				{/* <div>
 					<>
 						<div className={classes.dropdownContainer}>
 							<Field
@@ -491,16 +488,15 @@ class VideoSettingsForm extends Component {
 								variant="outlined"
 							/>
 						</div>
-						{/* take up the next grid slot: */}
 						<div style={{ width: 0 }} />
 					</>
-				</div>
+				</div> */}
 
 				<div>
 					<Field
 						name="captureRate"
 						component={renderTextField}
-						label="FPS"
+						label="Capture Rate"
 						variant="outlined"
 						type="number"
 					/>
@@ -514,7 +510,41 @@ class VideoSettingsForm extends Component {
 					<Field
 						name="videoBitrate"
 						component={renderTextField}
-						label="Bitrate (Mb/s)"
+						label="Bitrate (kb/s)"
+						variant="outlined"
+						type="number"
+					/>
+				</div>
+
+				<div>
+					<Field
+						name="videoBufferSize"
+						component={renderTextField}
+						label="Video Buffer Size"
+						variant="outlined"
+						type="number"
+					/>
+					<Field
+						name="audioBufferSize"
+						component={renderTextField}
+						label="Audio Buffer Size"
+						variant="outlined"
+						type="number"
+					/>
+					<Field
+						name="groupOfPictures"
+						component={renderTextField}
+						label="Group of Pictures"
+						variant="outlined"
+						type="number"
+					/>
+				</div>
+
+				<div>
+					<Field
+						name="framerate"
+						component={renderTextField}
+						label="Output FPS"
 						variant="outlined"
 						type="number"
 					/>
@@ -549,6 +579,14 @@ class VideoSettingsForm extends Component {
 						name="keyboardEnabled"
 						component={renderCheckbox}
 						label="Allow Keyboard Input"
+					/>
+				</div>
+
+				<div style={{ display: "block" }}>
+					<Field
+						name="controlSwitch"
+						component={renderCheckbox}
+						label="Control Switch"
 					/>
 				</div>
 
@@ -670,10 +708,9 @@ class VideoSettingsForm extends Component {
 									variant="outlined"
 								/>
 							</div>
-							{/* take up the next grid slot: */}
 							<div style={{ width: 0 }} />
 
-							<div className={classes.dropdownContainer}>
+							{/* <div className={classes.dropdownContainer}>
 								<Field
 									name="dshowAudioDeviceDropdown"
 									component={renderSelectField}
@@ -690,10 +727,30 @@ class VideoSettingsForm extends Component {
 									variant="outlined"
 								/>
 							</div>
-							{/* take up the next grid slot: */}
-							<div style={{ width: 0 }} />
+							<div style={{ width: 0 }} /> */}
 						</>
 					)}
+				</div>
+
+				<div>
+					<div className={classes.dropdownContainer}>
+						<Field
+							name="audioDeviceDropdown"
+							component={renderSelectField}
+							label="Audio Device Name"
+							variant="outlined"
+							labelWidth={100}
+						>
+							{this.getAudioDeviceMenuItems()}
+						</Field>
+						<Field
+							name="audioDevice"
+							component={renderTextField}
+							label="Audio Device Name"
+							variant="outlined"
+						/>
+					</div>
+					<div style={{ width: 0 }} />
 				</div>
 
 				<div>

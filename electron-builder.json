@@ -5,7 +5,7 @@
 	"asar": false,
 	"directories": {
 		"output": "./dist"
-		// "app": ""
+		// "app": "./"
 	},
 	"win": {
 		"target": [
@@ -25,7 +25,7 @@
 	},
 	"nsis": {
 		// "include": "./installers/installer.nsh",
-		"license": "./eula/eula.txt",
+		"license": "./misc/eula/eula.txt",
 		"oneClick": true,
 		"perMachine": false,
 		"allowElevation": true,
@@ -51,6 +51,7 @@
 		"channel": "latest"
 	},
 	"files": [
+		// exclude:
 		"!eula",
 		"!.babelrc",
 		"!.prettierrc",
@@ -59,8 +60,24 @@
 		"!*.bat",
 		"!webpack.*.js",
 		"!bundles/*.map",
-		"!src"
+		"!src",
+		"!*.yml",
+		"!scripts/*",
+		"!.vscode/*",
+		// include:
+		"build",
+		"bundles",
+		"hostControl",
+		"node_modules",
+		"index.html",
+		"package.json",
+		"main.js",
+		"renderer.js",
+		"update.js",
+		"misc"
 	],
 	"extraResources": "",
-	"extraFiles": ""
+	"extraFiles": "",
+	// "npmRebuild": false
+	"npmRebuild": true
 }

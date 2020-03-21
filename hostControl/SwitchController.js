@@ -104,8 +104,11 @@ const RESP_SYNC_OK = 0x33;
 
 export default class SwitchController {
 	constructor() {
-		this.port = None;
-		this.ser = None;
+		this.port = null;
+		this.ser = null;
+		this.buffer = null;
+		this.synced = false;
+		this.cNum = 0;
 
 		this.btns = 0;
 		this.axes = [0, 0, 0, 0];
@@ -134,7 +137,7 @@ export default class SwitchController {
 		this.output = "";
 	}
 
-	reset() {
+	reset = () => {
 		this.btns = 0;
 		this.axes = [0, 0, 0, 0];
 		// buttons:
@@ -158,7 +161,7 @@ export default class SwitchController {
 		this.home = 0;
 	}
 
-	setButtons(btns) {
+	setPacked = (btns) => {
 		this.btns = 0;
 		if (this.is_pressed(btns, 0)) {
 			this.up = 1;
@@ -235,48 +238,30 @@ export default class SwitchController {
 
 		for (let i = 0; i < 4; i++) {
 			if (i == 1 || i == 3) {
-				this.axs[i] = round(((-this.axes[i] + 1) / 2) * 255);
+				this.axs[i] = Math.round(((-this.axes[i] + 1) / 2) * 255);
 			} else {
-				this.axs[i] = round(((this.axes[i] + 1) / 2) * 255);
+				this.axs[i] = Math.round(((this.axes[i] + 1) / 2) * 255);
 			}
 		}
-	}
+	};
 
-	connect(port) {
+	connect = (port) => {
 		try {
-			if (this.ser != null && this.ser.is_open) {
+			if (this.ser !== null && this.ser.is_open) {
 				this.ser.close();
 			}
-
 			this.port = port;
 			// this.ser = serial.Serial((port = this.port), (baudrate = 19200), (timeout = 1));
 			this.ser = new SerialPort(this.port, { baudRate: 19200 });
-
-			let success = false;
-			let count = 0;
-			while (true) {
-				success = this.sync();
-				if (!success) {
-					count += 1;
-				} else {
-					break;
-				}
-				if (count > 10) {
-					console.log("Could not sync after 10 attempts on port: " + this.port);
-					break;
-				}
-			}
-			if (count < 10) {
-				console.log("Successful connection on port: " + this.port);
-				return "success";
-			}
+			this.ser.on("data", this.handleData);
+			this.sync();
 		} catch (error) {
-			console.log("port: " + error + " doesn't exist");
+			console.log(`port: ${error} doesn't exist`);
 			return "error";
 		}
 	}
 
-	setBtns() {
+	setBtns = () => {
 		this.btns = 0;
 		if (this.up) this.btns += DPAD_U;
 		if (this.down) this.btns += DPAD_D;
@@ -297,44 +282,46 @@ export default class SwitchController {
 		if (this.plus) this.btns += BTN_PLUS;
 		if (this.home) this.btns += BTN_HOME;
 		for (let i = 0; i < 4; i++) {
-			n = 0;
+			let n = 0;
 			if (this.axes[i] == 0) {
 				n = 128;
 			} else if (i == 1 || i == 3) {
-				n = round(((-this.axes[i] + 1) / 2) * 255);
+				n = Math.round(((-this.axes[i] + 1) / 2) * 255);
 			} else {
-				n = round(((this.axes[i] + 1) / 2) * 255);
+				n = Math.round(((this.axes[i] + 1) / 2) * 255);
 			}
 			this.axs[i] = n;
 		}
-	}
+	};
 
-	send() {
+	send = () => {
 		let packet = this.cmd_to_packet2(this.btns, this.axs);
-		let success = this.send_packet(packet);
-	}
+		this.send_packet(packet);
+	};
 
-	is_pressed(btns, n) {
+	is_pressed = (btns, n) => {
 		return (btns & (1 << n)) != 0;
-	}
+	};
 
 	// Compute x and y based on angle and intensity
-	angle(angle, intensity) {
+	angle = (angle, intensity) => {
+		let radians = angle * (Math.PI / 180);
 		// y is negative because on the Y input, UP = 0 and DOWN = 255
-		let x = int((math.cos(math.radians(angle)) * 0x7f * intensity) / 0xff) + 0x80;
-		let y = -int((math.sin(math.radians(angle)) * 0x7f * intensity) / 0xff) + 0x80;
+		let x = parseInt((Math.cos(radians) * 0x7f * intensity) / 0xff) + 0x80;
+		let y = -parseInt((Math.sin(radians) * 0x7f * intensity) / 0xff) + 0x80;
 		return { x: x, y: y };
-	}
+	};
 
-	lstick_angle(angle, intensity) {
+	lstick_angle = (angle, intensity) => {
 		return (intensity + (angle << 8)) << 24;
-	}
-	rstick_angle(angle, intensity) {
+	};
+
+	rstick_angle = (angle, intensity) => {
 		return (intensity + (angle << 8)) << 44;
-	}
+	};
 
 	// Precision wait
-	p_wait(waitTime) {
+	p_wait = (waitTime) => {
 		// let t0 = time.perf_counter();
 		// let t1 = t0;
 		// while (t1 - t0 < waitTime) {
@@ -345,94 +332,6 @@ export default class SwitchController {
 		while ((t1 - t0) * 1000 < waitTime) {
 			t1 = now();
 		}
-	}
-
-	// Wait for data to be available on the serial port
-	wait_for_data(timeout, sleepTime) {
-		if (typeof timeout == "undefined") {
-			timeout = 1;
-		}
-		if (typeof sleepTime == "undefined") {
-			sleepTime = 0.1;
-		}
-		// t0 = time.perf_counter()
-		// t1 = t0;
-		// inWaiting = this.ser.in_waiting;
-		// while ((t1 - t0 < sleepTime) || (inWaiting == 0)) {
-		// 	time.sleep(sleepTime);
-		// 	inWaiting = this.ser.in_waiting;
-		// 	t1 = time.perf_counter();
-		// }
-		t0 = now();
-		t1 = t0;
-		let inWaiting = this.ser.in_waiting;
-		// while ((t1 - t0) * 1000 < sleepTime || inWaiting == 0) {
-		// 	// time.sleep(sleepTime);
-		// 	inWaiting = this.ser.in_waiting;
-		// 	t1 = now();
-		// }
-
-		// let timer = null;
-		// timer = setInterval(() => {
-		// 	t1 = now();
-		// 	if ((t1 - t0) * 1000 < sleepTime || inWaiting == 0) {
-		// 		clearInterval(timer);
-		// 	}
-		// });
-		while ((t1 - t0) * 1000 < sleepTime || inWaiting == 0) {
-			// time.sleep(sleepTime);
-			inWaiting = this.ser.in_waiting;
-			t1 = now();
-		}
-	}
-
-	// Read X bytes from the serial port (returns list)
-	read_bytes(size) {
-		let bytes_in = this.ser.read(size);
-		// return list(bytes_in);
-		let list = [];
-		for (let x in bytes_in) {
-			list.push(x);
-		}
-		return list;
-	}
-
-	// Read 1 byte from the serial port (returns int)
-	read_byte() {
-		let bytes_in = this.read_bytes(1);
-		if (bytes_in.length != 0) {
-			byte_in = bytes_in[0];
-		} else {
-			byte_in = 0;
-		}
-		return byte_in;
-	}
-	// Discard all incoming bytes and read the last (latest) (returns int)
-	read_byte_latest() {
-		let inWaiting = this.ser.in_waiting;
-		if (inWaiting == 0) {
-			inWaiting = 1;
-		}
-		bytes_in = this.read_bytes(inWaiting);
-		if (bytes_in.length != 0) {
-			byte_in = bytes_in[0];
-		} else {
-			byte_in = 0;
-		}
-		return byte_in;
-	}
-
-	// Write bytes to the serial port
-	write_bytes(bytes_out) {
-		// this.ser.write(bytearray(bytes_out));
-		this.ser.write(bytes_out);
-		return;
-	}
-
-	// Write byte to the serial port
-	write_byte(byte_out) {
-		this.write_bytes([byte_out]);
-		return;
 	}
 
 	// Compute CRC8
@@ -453,43 +352,26 @@ export default class SwitchController {
 	}
 
 	// Send a raw packet and wait for a response (CRC will be added automatically)
-	send_packet(packet, debug) {
+	send_packet = (packet, cb) => {
 		if (!packet) {
 			packet = [0x00, 0x00, 0x08, 0x80, 0x80, 0x80, 0x80, 0x00];
 		}
 
-		if (typeof debug == "undefined") {
-			debug = false;
-		}
-		let commandSuccess = false;
-		// debug defaults to false!
-		if (!debug) {
-			let bytes_out = [];
-			// bytes_out.extend(packet);
-			for (let i = 0; i < packet.length; i++) {
-				bytes_out.push(packet[i]);
-			}
+		let bytes_out = [];
+		bytes_out.push(...packet);
 
-			// Compute CRC
-			let crc = 0;
-			for (let i = 0; i < packet.length; i++) {
-				crc = this.crc8_ccitt(crc, packet[i]);
-			}
-			bytes_out.push(crc);
-			this.write_bytes(bytes_out);
-			// print(bytes_out)
-
-			// Wait for USB ACK or UPDATE NACK
-			let byte_in = this.read_byte();
-			commandSuccess = byte_in == RESP_USB_ACK;
-		} else {
-			commandSuccess = true;
+		// Compute CRC
+		let crc = 0;
+		for (let d of packet) {
+			crc = this.crc8_ccitt(crc, d);
 		}
-		return commandSuccess;
+		bytes_out.push(crc);
+		this.ser.write(bytes_out);
 	}
 
 	// Convert DPAD value to actual DPAD value used by Switch
-	decrypt_dpad(dpad) {
+	decrypt_dpad = (dpad) => {
+		let dpadDecrypt = null;
 		if (dpad == DIR_U) {
 			dpadDecrypt = A_DPAD_U;
 		} else if (dpad == DIR_R) {
@@ -513,46 +395,62 @@ export default class SwitchController {
 	}
 
 	// Convert CMD to a packet
-	cmd_to_packet(command) {
-		let cmdCopy = command;
-		let low = cmdCopy & 0xff;
+	cmd_to_packet = (command) => {
+		let cmdCopy,
+			low,
+			high,
+			dpad,
+			lstick_intensity,
+			lstick_angle,
+			rstick_intensity,
+			rstick_angle;
+		cmdCopy = command;
+		low = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 8
-		let high = cmdCopy & 0xff;
+		high = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 16
-		let dpad = cmdCopy & 0xff;
+		dpad = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 24
-		let lstick_intensity = cmdCopy & 0xff;
+		lstick_intensity = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 32
-		let lstick_angle = cmdCopy & 0xfff;
+		lstick_angle = cmdCopy & 0xfff;
 		cmdCopy = cmdCopy >> 12; // 44
-		let rstick_intensity = cmdCopy & 0xff;
+		rstick_intensity = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 52
-		let rstick_angle = cmdCopy & 0xfff; // 60
-		let dpad = this.decrypt_dpad(dpad);
+		rstick_angle = cmdCopy & 0xfff; // 60
+		dpad = this.decrypt_dpad(dpad);
 		let left = this.angle(lstick_angle, lstick_intensity);
 		let right = this.angle(rstick_angle, rstick_intensity);
 
 		let packet = [high, low, dpad, left.x, left.y, right.x, right.y, 0x00];
 		// print (hex(command), packet, lstick_angle, lstick_intensity, rstick_angle, rstick_intensity)
 		return packet;
-	}
+	};
 
-	cmd_to_packet2(command, axes) {
-		let cmdCopy = command;
-		let low = cmdCopy & 0xff;
+	cmd_to_packet2 = (command, axes) => {
+		let cmdCopy,
+			low,
+			high,
+			dpad,
+			lstick_intensity,
+			lstick_angle,
+			rstick_intensity,
+			rstick_angle;
+		cmdCopy = command;
+		low = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 8
-		let high = cmdCopy & 0xff;
+		high = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 16
-		let dpad = cmdCopy & 0xff;
+		dpad = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 24
-		let lstick_intensity = cmdCopy & 0xff;
+		lstick_intensity = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 32
-		let lstick_angle = cmdCopy & 0xfff;
+		lstick_angle = cmdCopy & 0xfff;
 		cmdCopy = cmdCopy >> 12; // 44
-		let rstick_intensity = cmdCopy & 0xff;
+		rstick_intensity = cmdCopy & 0xff;
 		cmdCopy = cmdCopy >> 8; // 52
-		let rstick_angle = cmdCopy & 0xfff; // 60
-		let dpad = this.decrypt_dpad(dpad);
+		rstick_angle = cmdCopy & 0xfff; // 60
+		dpad = this.decrypt_dpad(dpad);
 		let left_x = axes[0];
 		let left_y = axes[1];
 		let right_x = axes[2];
@@ -560,10 +458,10 @@ export default class SwitchController {
 		let packet = [high, low, dpad, left_x, left_y, right_x, right_y, 0x00];
 		// print (hex(command), packet, lstick_angle, lstick_intensity, rstick_angle, rstick_intensity)
 		return packet;
-	}
+	};
 
 	// Send a formatted controller command to the MCU
-	send_cmd(command) {
+	send_cmd = (command) => {
 		if (!command) {
 			command = NO_INPUT;
 		}
@@ -572,7 +470,7 @@ export default class SwitchController {
 	}
 
 	//Test all buttons except for home and capture
-	testbench_btn() {
+	testbench_btn = () => {
 		this.send_cmd(BTN_A);
 		this.p_wait(0.5);
 		this.send_cmd();
@@ -605,10 +503,10 @@ export default class SwitchController {
 		this.p_wait(0.5);
 		this.send_cmd();
 		this.p_wait(0.001);
-	}
+	};
 
 	// Test DPAD U / R / D / L
-	testbench_dpad() {
+	testbench_dpad = () => {
 		this.send_cmd(DPAD_U);
 		this.p_wait(0.5);
 		this.send_cmd();
@@ -625,9 +523,9 @@ export default class SwitchController {
 		this.p_wait(0.5);
 		this.send_cmd();
 		this.p_wait(0.001);
-	}
+	};
 	// Test DPAD Diagonals - Does not register on switch due to dpad buttons
-	testbench_dpad_diag() {
+	testbench_dpad_diag = () => {
 		this.send_cmd(DPAD_U_R);
 		this.p_wait(0.5);
 		this.send_cmd();
@@ -644,92 +542,9 @@ export default class SwitchController {
 		this.p_wait(0.5);
 		this.send_cmd();
 		this.p_wait(0.001);
-	}
-	// // Test Left Analog Stick
-	// testbench_lstick() {
-	// 	//Test U/R/D/L
-	// 	this.send_cmd(BTN_LCLICK) ; this.p_wait(0.5) ; this.send_cmd() ; this.p_wait(0.001)
-	// 	this.send_cmd(LSTICK_U) ; this.p_wait(0.5)
-	// 	this.send_cmd(LSTICK_R) ; this.p_wait(0.5)
-	// 	this.send_cmd(LSTICK_D) ; this.p_wait(0.5)
-	// 	this.send_cmd(LSTICK_L) ; this.p_wait(0.5)
-	// 	this.send_cmd(LSTICK_U) ; this.p_wait(0.5)
-	// 	this.send_cmd(LSTICK_CENTER) ; this.p_wait(0.5)
+	};
 
-	// 	// 360 Circle @ Full Intensity
-	// 	for i in range(0,721):
-	// 		cmd = this.lstick_angle(i + 90, 0xFF)
-	// 		this.send_cmd(cmd)
-	// 		this.p_wait(0.001)
-	// 	this.send_cmd(LSTICK_CENTER) ; this.p_wait(0.5)
-
-	// 	// 360 Circle @ Partial Intensity
-	// 	for i in range(0,721):
-	// 		cmd = this.lstick_angle(i + 90, 0x80)
-	// 		this.send_cmd(cmd)
-	// 		this.p_wait(0.001)
-	// 	this.send_cmd(LSTICK_CENTER) ; this.p_wait(0.5)
-	// }
-
-	// // Test Right Analog Stick
-	// testbench_rstick() {
-	// 	//Test U/R/D/L
-	// 	this.send_cmd(BTN_RCLICK) ; this.p_wait(0.5) ; this.send_cmd() ; this.p_wait(0.001)
-	// 	this.send_cmd(RSTICK_U) ; this.p_wait(0.5)
-	// 	this.send_cmd(RSTICK_R) ; this.p_wait(0.5)
-	// 	this.send_cmd(RSTICK_D) ; this.p_wait(0.5)
-	// 	this.send_cmd(RSTICK_L) ; this.p_wait(0.5)
-	// 	this.send_cmd(RSTICK_U) ; this.p_wait(0.5)
-	// 	this.send_cmd(RSTICK_CENTER) ; this.p_wait(0.5)
-
-	// 	// 360 Circle @ Full Intensity
-	// 	for i in range(0,721):
-	// 		cmd = this.rstick_angle(i + 90, 0xFF)
-	// 		this.send_cmd(cmd)
-	// 		this.p_wait(0.001)
-	// 	this.send_cmd(RSTICK_CENTER) ; this.p_wait(0.5)
-
-	// 	// 360 Circle @ Partial Intensity
-	// 	for i in range(0,721):
-	// 		cmd = this.rstick_angle(i + 90, 0x80)
-	// 		this.send_cmd(cmd)
-	// 		this.p_wait(0.001)
-	// 	this.send_cmd(RSTICK_CENTER) ; this.p_wait(0.5)
-	// }
-
-	// // Test Packet Speed
-	// testbench_packet_speed(this, count=100, debug=False) {
-	// 	sum = 0
-	// 	min = 999
-	// 	max = 0
-	// 	avg = 0
-	// 	err = 0
-
-	// 	for i in range(0, count + 1):
-
-	// 		// Send packet and check time
-	// 		t0 = time.perf_counter()
-	// 		status = this.send_packet()
-	// 		t1 = time.perf_counter()
-
-	// 		// Count errors
-	// 		if not status:
-	// 			err += 1
-	// 			print('Packet Error!')
-
-	// 		// Compute times
-	// 		delta = t1 - t0
-	// 		if delta < min:
-	// 			min = delta
-	// 		if delta > max:
-	// 			max = delta
-	// 		sum = sum + (t1 - t0)
-
-	// 	avg = sum / i
-	// 	print('Min =', '{:.3f}'.format(min), 'Max =', '{:.3}'.format(max), 'Avg =', '{:.3f}'.format(avg), 'Errors =', err)
-	// }
-
-	testbench() {
+	testbench = () => {
 		this.testbench_btn();
 		this.testbench_dpad();
 		this.testbench_lstick();
@@ -738,66 +553,115 @@ export default class SwitchController {
 		return;
 	}
 
-	// Force MCU to sync
-	force_sync() {
-		// Send 9x 0xFF's to fully flush out buffer on device
-		// Device will send back 0xFF (RESP_SYNC_START) when it is ready to sync
-		this.write_bytes([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]);
+	writeAndDrain = (data, cb) => {
+		// this.ser.write(data, (error, bytesWritten) => {
+		// 	console.log("eb", error, bytesWritten);
+		// 	this.ser.drain(cb);
+		// });
+		this.ser.write(data);
+		this.ser.drain(cb);
+		// cb();
+	};
 
-		// Wait for serial data and read the last byte sent
-		this.wait_for_data();
-		let byte_in = this.read_byte_latest();
-
-		// Begin sync...
-		let inSync = false;
-		if (byte_in == RESP_SYNC_START) {
-			this.write_byte(COMMAND_SYNC_1);
-			byte_in = this.read_byte();
-			if (byte_in == RESP_SYNC_1) {
-				this.write_byte(COMMAND_SYNC_2);
-				byte_in = this.read_byte();
-				if (byte_in == RESP_SYNC_OK) {
-					inSync = true;
+	waitForData = (timeToWait, cb) => {
+		let t = now();
+		let timer = setInterval(() => {
+			let byte = this.ser.read(1);
+			if (byte === null) {
+				let tWaiting = now() - t;
+				if (tWaiting > timeToWait) {
+					clearInterval(timer);
+					cb(null);
 				}
+			} else {
+				// console.log(typeof byte);
+				// console.log(Object.keys(byte));
+				// console.log(byte);
+				// console.log(byte[0]);
+				clearInterval(timer);
+				cb(byte);
 			}
+		}, 1);
+	};
+
+	writeDrainWait = (data, timeToWait, cb) => {
+		this.writeAndDrain(data, () => {
+			this.waitForData(timeToWait, cb);
+		});
+	};
+
+	flushWait = (timeToWait, cb) => {
+		this.ser.flush(() => {
+			this.waitForData(timeToWait, cb);
+		});
+	};
+
+	handleData = (buffer) => {
+		if (buffer && buffer[0] != 0x90) {
+			this.synced = true;
+			this.ser.off("data", this.handleData);
 		}
-		return inSync;
-	}
+	};
+
+	closeConnection = () => {
+		try {
+			this.ser.close();
+		} catch(error) {
+			console.log(error);
+		}
+	};
 
 	// Start MCU syncing process
-	sync() {
-		let inSync = false;
-		// Try sending a packet
-		inSync = this.send_packet();
-		if (!inSync) {
-			// Not in sync: force resync and send a packet
-			inSync = this.force_sync();
-			if (inSync) {
-				inSync = this.send_packet();
-			}
-		}
-		return inSync;
-	}
+	sync = () => {
+		// this.ser.write([0xff, 0x33, 0xcc]);
+		// this.ser.write([0x00, 0x00, 0x00, 0x00, 0x00]);
+
+		this.ser.write([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]);
+		this.ser.write([0x33]);
+		this.ser.write([0xcc]);
+		this.send_packet();
+		// this.ser.write([0xff, 0x33, 0xcc, 0x00, 0x00, 0x00, 0x00, 0x00]);
+
+		// setTimeout(() => {
+		// 	this.ser.write([0xff]);
+		// }, 0);
+		// setTimeout(() => {
+		// 	this.ser.write([0x33]);
+		// }, 1000);
+		// setTimeout(() => {
+		// 	this.ser.write([0xcc]);
+		// }, 2000);
+	};
 }
 
-let controller = new SwitchController();
-controller.connect("COM4");
+// setTimeout(() => {
+// 	let controller = new SwitchController();
+// 	controller.connect("COM3");
 
-// Attempt to sync with the MCU
-if (!controller.sync()) {
-	console.log("Could not sync!");
-}
-// if not controller.send_cmd(BTN_A + DPAD_U_R + LSTICK_U + RSTICK_D_L):
-// 	print('Packet Error!')
-//
-// controller.p_wait(0.05)
-//
-// if not controller.send_cmd():
-// 	print('Packet Error!')
+// 	// wait for the arduino to be ready:
+// 	setTimeout(() => {
+// 		setInterval(() => {
+// 			// controller.send_cmd(LSTICK_U + BTN_A);
+// 			// controller.p_wait(0.02);
+// 			// controller.send_cmd();
 
-// controller.send_cmd(LSTICK_U + BTN_A)
-// controller.p_wait(0.02)
-// controller.send_cmd()
+// 			// controller.b = 1;
+// 			// controller.setBtns();
+// 			// controller.send();
 
-// controller.testbench()
-// testbench_packet_speed(1000)
+// 			// // reset:
+// 			// controller.reset();
+// 			// controller.setBtns();
+// 			// controller.send();
+
+// 			// controller.testbench()
+// 			// testbench_packet_speed(1000)
+// 		}, 2000);
+// 	}, 2000);
+
+// 	// controller.testbench_btn();
+
+// 	// const SerialPort = require("serialport");
+// 	// let ser = new SerialPort("COM2", { baudRate: 19200 });
+// 	// ser.on("data", (buffer) => {console.log(buffer)});
+// }, 1000);

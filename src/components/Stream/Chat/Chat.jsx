@@ -8,8 +8,8 @@ import SendMessageForm from "./SendMessageForm.jsx";
 import { withStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 
-// device sizes:
-import { device } from "src/constants/DeviceSizes.js";
+// libs:
+import { device } from "shared/libs/utils.js";
 
 // jss:
 const styles = (theme) => ({
@@ -20,6 +20,7 @@ const styles = (theme) => ({
 		justifyContent: "space-between",
 		flex: "1",
 		padding: "5px",
+		minWidth: "300px",
 	},
 	[device.tablet]: {
 		root: {

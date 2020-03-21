@@ -6,7 +6,7 @@ import { withRouter } from "react-router";
 
 // components:
 import ConnectAccounts from "src/components/ConnectAccounts.jsx";
-import UsernameDropdown from "src/components//UsernameDropdown.jsx";
+import UsernameDropdown from "src/components/UsernameDropdown.jsx";
 
 // material ui:
 import { withStyles } from "@material-ui/core/styles";
@@ -24,10 +24,8 @@ import { connect } from "react-redux";
 import { compose } from "recompose";
 
 // libs:
+import { device } from "shared/libs/utils.js";
 import localforage from "localforage";
-
-// device sizes:
-import { device } from "src/constants/DeviceSizes.js";
 
 // jss:
 const styles = (theme) => ({
@@ -86,7 +84,7 @@ class AccountModal extends PureComponent {
 	}
 
 	handleLogout() {
-		this.props.history.push("/");
+		this.props.history.push("/login");
 		localforage.clear();
 		location.reload(true);
 	}

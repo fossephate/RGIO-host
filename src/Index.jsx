@@ -6,7 +6,7 @@ import { Route, Switch } from "react-router";
 import { HashRouter } from "react-router-dom";
 
 // material ui:
-import CssBaseline from "@material-ui/core/CssBaseline";
+import { CssBaseline } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/styles";
 import { createMuiTheme } from "@material-ui/core/styles";
 
@@ -21,8 +21,8 @@ import rootReducer from "./reducers";
 
 // redux-saga:
 import createSagaMiddleware from "redux-saga";
-import handleAccountActions from "src/sagas/account/";
-import handleAccountEvents from "src/sockets/account/";
+import handleAccountActions from "src/sagas/account/index.js";
+import handleAccountEvents from "src/sockets/account/index.js";
 
 // libs:
 import socketio from "socket.io-client";
@@ -33,7 +33,7 @@ const sagaMiddleware = createSagaMiddleware();
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 let preloadedState = {
-	clientInfo: {
+	client: {
 		authToken: null,
 		loggedIn: false,
 		userid: null,
@@ -97,8 +97,6 @@ class Index extends Component {
 			},
 		});
 
-		this.switchTheme = this.switchTheme.bind(this);
-
 		// let currentValue = null;
 		// const unsubscribe = store.subscribe(() => {
 		// 	let previousValue = currentValue;
@@ -111,7 +109,7 @@ class Index extends Component {
 		// });
 	}
 
-	switchTheme(themeName) {
+	switchTheme = (themeName) => {
 		switch (themeName) {
 			case "light":
 				this.theme = merge(this.theme, {

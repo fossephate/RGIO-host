@@ -7,15 +7,15 @@ import { Route, Switch, withRouter } from "react-router";
 // material ui:
 import { withStyles } from "@material-ui/core/styles";
 // components:
-import TitleBar from "src/components/TitleBar.jsx";
+
 import VideoSettingsForm from "src/components/Forms/VideoSettingsForm.jsx";
-import MyAppBar from "src/components/MyAppBar.jsx";
-import Chat from "src/components/Stream/Chat/Chat.jsx";
+import TitleBar from "src/components/appBar/TitleBar.jsx";
+import AppBar from "src/components/appBar/AppBar.jsx";
+import Chat from "shared/components/chat/Chat.jsx";
 
 // modals:
-import LoginRegisterModal from "src/components/Modals/LoginRegisterModal.jsx";
-import AccountModal from "src/components/Modals/AccountModal.jsx";
-import InputMapperModal from "src/components/Modals/InputMapperModal.jsx";
+import LoginRegisterModal from "shared/components/modals/LoginRegisterModal.jsx";
+import AccountModal from "shared/components/modals/AccountModal.jsx";
 
 // imports:
 // const { execFile, spawn, exec } = require("child_process");
@@ -25,22 +25,19 @@ const { desktopCapturer } = require("electron");
 
 // redux:
 import { connect } from "react-redux";
-import { updateStream } from "src/actions/stream.js";
-import { updateClientInfo, authenticate } from "src/actions/clientInfo.js";
 // redux-saga:
 import handleStreamActions from "src/sagas/stream";
 import handleStreamEvents from "src/sockets/stream";
 
 // libs:
-import HostControl from "src/../hostControl/hostControl.js";
+import { device } from "shared/libs/utils.js";
+import HostControl from "src/../hostControl/HostControl.js";
+import { Lagless2Host } from "src/libs/lagless/lagless2.js";
+import { Lagless4Host } from "src/libs/lagless/lagless4.js";
 import socketio from "socket.io-client";
-import Lagless4Host from "src/libs/lagless/lagless4.js";
 
 // recompose:
 import { compose } from "recompose";
-
-// device sizes:
-import { device } from "src/constants/DeviceSizes.js";
 
 // jss:
 const styles = (theme) => ({
@@ -71,6 +68,7 @@ const styles = (theme) => ({
 		position: "absolute",
 		right: "25px",
 		bottom: "5px",
+		zIndex: 3000,
 	},
 });
 
@@ -79,19 +77,13 @@ class App extends Component {
 		super(props);
 
 		this.args = [];
-		this.videoHostInstance = null;
 		this.controllerHostInstance = null;
 		this.hostControl = null;
 
 		this.accountConnection = this.props.accountConnection;
 		this.hostConnection = null;
 		this.videoConnection = null;
-
-		this.killProcesses = this.killProcesses.bind(this);
-		this.handleStartStreaming = this.handleStartStreaming.bind(this);
-		this.handleStopStreaming = this.handleStopStreaming.bind(this);
-		this.handleGetSettings = this.handleGetSettings.bind(this);
-		this.handleClose = this.handleClose.bind(this);
+		this.stream = null;
 
 		// this.initialValues = {};
 
@@ -107,9 +99,15 @@ class App extends Component {
 				windowTitleDropdown: 0,
 				audioDevice: null,
 				audioDeviceDropdown: 0,
+				dshowVideoDevice: null,
+				dshowVideoDeviceDropdown: 0,
 				resolution: 540,
-				videoBitrate: 1,
-				captureRate: 30,
+				videoBitrate: 1500,
+				videoBufferSize: 512,
+				audioBufferSize: 128,
+				groupOfPictures: 60,
+				captureRate: 60,
+				framerate: 30,
 				capture: "window",
 				streamType: "mpeg2",
 				offsetX: 0,
@@ -127,13 +125,21 @@ class App extends Component {
 	}
 
 	componentDidMount() {
+		this.killProcesses();
+		if (!this.props.loggedIn) {
+			this.props.history.replace("/login");
+		}
+		// localforage.clear();
 		setTimeout(() => {
-			if (this.props.loggedIn) {
+			if (this.props.history.location.pathname !== "/" && this.props.loggedIn) {
 				this.props.history.replace("/");
-			} else {
-				this.props.history.replace("/login");
 			}
-		}, 500);
+		}, 1000);
+		setTimeout(() => {
+			if (this.props.history.location.pathname !== "/" && this.props.loggedIn) {
+				this.props.history.replace("/");
+			}
+		}, 5000);
 	}
 
 	componentWillUnmount() {
@@ -145,11 +151,11 @@ class App extends Component {
 		// 	return true;
 		// }
 
-		if (this.props.history.location.pathname === "/" && !this.props.loggedIn) {
+		if (!this.props.loggedIn && this.props.history.location.pathname !== "/login") {
 			this.props.history.push("/login");
 		}
 
-		if (this.props.history.location.pathname === "/login" && this.props.loggedIn) {
+		if (this.props.loggedIn && this.props.history.location.pathname === "/login") {
 			this.props.history.push("/");
 		}
 
@@ -160,7 +166,7 @@ class App extends Component {
 		return true;
 	}
 
-	killProcesses() {
+	killProcesses = () => {
 		if (this.hostConnection) {
 			this.hostConnection.removeAllListeners();
 			this.hostConnection.destroy();
@@ -171,18 +177,17 @@ class App extends Component {
 			this.videoConnection.destroy();
 			this.videoConnection = null;
 		}
-		if (this.videoHostInstance) {
-			// this.videoHostInstance.stdin.pause();
-			this.videoHostInstance.kill();
-			spawn("taskkill", ["/f", "/t", "/im", "ffmpeg.exe"]);
-			// process.kill(-this.videoHostInstance.pid);
+		if (this.stream) {
+			this.stream.destroy();
+			this.stream = null;
 		}
-		if (this.controlHost) {
-			this.controlHost.deinit();
+		if (this.hostControl) {
+			this.hostControl.destroy();
+			this.hostControl = null;
 		}
-	}
+	};
 
-	handleStartStreaming(args) {
+	handleStartStreaming = (args) => {
 		// this.args = args;
 		// this.props.socket.emit("stopStreaming", { authToken: this.props.authToken });
 		// console.log(args);
@@ -206,9 +211,9 @@ class App extends Component {
 				}
 			},
 		);
-	}
+	};
 
-	startStreaming(args) {
+	startStreaming = (args) => {
 		if (this.hostConnection) {
 			this.hostConnection.removeAllListeners();
 			this.hostConnection.destroy();
@@ -225,6 +230,10 @@ class App extends Component {
 			transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
 		});
 
+		this.hostConnection.on("disconnect", () => {
+			this.handleStopStreaming(true);
+		});
+
 		// // listen to events and dispatch actions:
 		handleStreamEvents(this.hostConnection, this.props.store.dispatch);
 		// handle outgoing events & listen to actions:
@@ -235,7 +244,6 @@ class App extends Component {
 		});
 
 		// start video host:
-		let videoHostLocation = app.getAppPath() + "\\hostVideo\\hostVideo.exe";
 
 		// todo set host2 and port2 based on region and args:
 		args = { ...args, host1: "https://remotegames.io", port1: 8099 };
@@ -254,7 +262,7 @@ class App extends Component {
 				transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
 			});
 
-			let lagless4Host = new Lagless4Host(this.videoConnection, args.streamKey);
+			this.stream = new Lagless4Host(this.videoConnection, args.streamKey);
 
 			navigator.mediaDevices.enumerateDevices().then((sources) => {
 				console.log(sources);
@@ -295,7 +303,7 @@ class App extends Component {
 											audio: audioConstraint,
 											video: { mandatory: { chromeMediaSourceId: source.id } },
 										});
-										lagless4Host.run(stream);
+										this.stream.run(stream);
 									} catch (error) {
 										alert(error);
 									}
@@ -316,7 +324,7 @@ class App extends Component {
 												},
 											},
 										});
-										lagless4Host.run(stream);
+										this.stream.run(stream);
 									} catch (error) {
 										alert(error);
 									}
@@ -325,49 +333,28 @@ class App extends Component {
 							}
 						}
 					});
-
-				// this.audioDeviceNames = audioDeviceNames;
-				// this.setState({});
 			});
-		} else {
-			let myArgs = [
-				`--host1=${args.host1}`,
-				`--port1=${args.port1}`,
-				// `--host2=${args.host2}`,
-				// `--port2=${args.port2}`,
-				`--resolution=${args.resolution}`,
-				`--videoBitrate=${args.videoBitrate}`,
-				`--captureRate=${args.captureRate}`,
-				// `--audioDevice=${args.audioDevice}`,
-			];
-
-			if (args.capture === "window") {
-				myArgs.push(`--windowTitle=${args.windowTitle}`);
-			} else {
-				myArgs.push(`--width=${args.width}`);
-				myArgs.push(`--height=${args.height}`);
-				myArgs.push(`--offsetX=${args.offsetX}`);
-				myArgs.push(`--offsetY=${args.offsetY}`);
-			}
-
-			if (args.audioDevice) {
-				myArgs.push(`--audioDevice=${args.audioDevice}`);
-			}
-
-			myArgs.push(`--host2=${args.videoIP}`);
-			myArgs.push(`--port2=${args.videoPort}`);
-			myArgs.push(`--streamKey=${args.streamKey}`);
-
-			this.videoHostInstance = spawn(videoHostLocation, myArgs);
-
-			this.videoHostInstance.stderr.on("data", (data) => {
-				console.log("stderr: " + data);
+		} else if (args.streamType === "mpeg2") {
+			this.videoConnection = socketio(`https://${args.videoIP}`, {
+				path: `/${args.videoPort}/socket.io`,
+				transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
 			});
+
+			this.stream = new Lagless2Host(
+				args,
+				app.getAppPath(),
+				this.hostConnection,
+				this.videoConnection,
+			);
+
+			this.stream.setupAuthentication(args.streamKey);
+
+			this.stream.run();
 		}
 
 		// start control host:
 
-		let catLocation = app.getAppPath() + "\\hostControl\\cat.exe";
+		let catLocation = app.getAppPath() + "\\misc\\utils\\cat.exe";
 		let customScriptLocation = app.getAppPath() + "\\hostControl\\customControl.js";
 		// read customControl.js file from disk:
 		let catProc = spawn(catLocation, [customScriptLocation]);
@@ -378,13 +365,14 @@ class App extends Component {
 				controllerCount: args.controllerCount,
 				keyboardEnabled: args.keyboardEnabled,
 				mouseEnabled: args.mouseEnabled,
+				controlSwitch: args.controlSwitch,
 			});
 			this.hostControl.init();
 			this.hostControl.run(data);
 		});
-	}
+	};
 
-	handleStopStreaming(suppressError) {
+	handleStopStreaming = (suppressError) => {
 		this.killProcesses();
 		this.killProcesses();
 		this.props.accountConnection.emit(
@@ -396,10 +384,11 @@ class App extends Component {
 				}
 			},
 		);
-	}
+	};
 
-	handleGetSettings() {
+	handleGetSettings = () => {
 		this.handleStopStreaming(true);
+
 		this.props.accountConnection.emit(
 			"getStreamSettings",
 			{ authToken: this.props.authToken },
@@ -416,18 +405,18 @@ class App extends Component {
 				}
 			},
 		);
-	}
+	};
 
-	handleClose() {
+	handleClose = () => {
 		this.handleStopStreaming(true);
 		setTimeout(() => {
 			app.quit();
 		}, 1000);
-	}
+	};
 
-	toggleDrawer() {
+	toggleDrawer = () => {
 		alert("test");
-	}
+	};
 
 	render() {
 		console.log("re-rendering app.");
@@ -437,38 +426,41 @@ class App extends Component {
 		return (
 			<div className={classes.root}>
 				<TitleBar handleClose={this.handleClose} />
-				<MyAppBar handleToggleDrawer={this.toggleDrawer} handleClose={this.handleClose} />
-				{this.props.loggedIn && (
-					<div className={classes.settingsContainer}>
-						<VideoSettingsForm
-							onSubmit={this.handleStartStreaming}
-							onStopStreaming={this.handleStopStreaming}
-							onGetSettings={this.handleGetSettings}
-							initialValues={this.state.formInitialValues}
-						/>
-						<Chat hide={false} />
-					</div>
-				)}
-				<video />
-				<div className={classes.versionNumber}>v0.0.82</div>
+				<AppBar handleToggleDrawer={this.toggleDrawer} handleClose={this.handleClose} />
+
+				<div className={classes.versionNumber}>v{APPLICATION_VERSION}</div>
 				{/* selects the first matching path: */}
 				<Switch>
 					<Route
 						path="/(login|register)"
 						render={(props) => {
-							return <LoginRegisterModal {...props} history={this.props.history} />;
+							return <LoginRegisterModal {...props} local={true} history={this.props.history} />;
 						}}
 					/>
 					<Route
 						path="/account"
 						render={(props) => {
-							return <AccountModal {...props} />;
+							return <AccountModal {...props} local={true} />;
 						}}
 					/>
+
 					<Route
-						path="/remap"
+						path="/"
 						render={(props) => {
-							return <InputMapperModal {...props} inputHandler={inputHandler} />;
+							return (
+								<>
+									<div className={classes.settingsContainer}>
+										<VideoSettingsForm
+											onSubmit={this.handleStartStreaming}
+											onStopStreaming={this.handleStopStreaming}
+											onGetSettings={this.handleGetSettings}
+											initialValues={this.state.formInitialValues}
+										/>
+										<Chat hide={false} />
+									</div>
+									<video />
+								</>
+							);
 						}}
 					/>
 				</Switch>
@@ -479,22 +471,13 @@ class App extends Component {
 
 const mapStateToProps = (state) => {
 	return {
-		authToken: state.clientInfo.authToken,
-		loggedIn: state.clientInfo.loggedIn,
+		authToken: state.client.authToken,
+		loggedIn: state.client.loggedIn,
 	};
 };
 
 const mapDispatchToProps = (dispatch) => {
 	return {
-		updateStream: (settings) => {
-			dispatch(updateStream(settings));
-		},
-		updateClientInfo: (data) => {
-			dispatch(updateClientInfo(data));
-		},
-		authenticate: (data) => {
-			dispatch(authenticate(data));
-		},
 	};
 };
 

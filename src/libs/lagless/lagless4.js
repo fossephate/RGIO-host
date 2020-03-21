@@ -227,7 +227,7 @@ function mySDPTransform(sdp) {
 	return sdp;
 }
 
-export default class Lagless4Host {
+export class Lagless4Host {
 	constructor(socket, streamKey) {
 		this.socket = socket;
 		this.streamKey = streamKey;
@@ -313,4 +313,6 @@ export default class Lagless4Host {
 			this.clients[index].peer.signal(JSON.parse(data.data));
 		});
 	}
+
+	stop() {}
 }

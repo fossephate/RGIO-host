@@ -5,14 +5,14 @@ import stream from "./stream/index.js";
 // import streams from "./streams/index.js";
 // import account from "./account/index.js";
 
-import clientInfo from "./clientInfo.js";
+import client from "shared/features/client.js";
 // import settings from "./settings.js";
 
 const rootReducer = combineReducers({
 	stream,
 	// streams,
 	// account,
-	clientInfo,
+	client,
 	// settings,
 	form,
 });

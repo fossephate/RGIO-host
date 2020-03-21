@@ -1,8 +1,10 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, dialog } = require("electron");
+const { app, BrowserWindow } = require("electron");
+
+const update = require("./update.js");
 
 // handle automatic updating:
-require("./update.js");
+
 
 // reload on save:
 if (!app.isPackaged) {
@@ -11,13 +13,13 @@ if (!app.isPackaged) {
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
+global.mainWindow;
 
 function createWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
 		width: 1280,
-		height: 720,
+		height: 800,
 		webPreferences: {
 			nodeIntegration: true,
 		},
@@ -39,6 +41,8 @@ function createWindow() {
 		// when you should delete the corresponding element.
 		mainWindow = null;
 	});
+
+	update(mainWindow);
 }
 
 // This method will be called when Electron has finished

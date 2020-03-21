@@ -5,8 +5,8 @@ import React, { PureComponent } from "react";
 import { Route, withRouter } from "react-router";
 
 // components:
-import LoginForm from "src/components/Forms/LoginForm.jsx";
-import RegisterForm from "src/components/Forms/RegisterForm.jsx";
+import LoginForm from "src/components/forms/LoginForm.jsx";
+import RegisterForm from "src/components/forms/RegisterForm.jsx";
 
 // material ui:
 import { withStyles } from "@material-ui/core/styles";
@@ -29,10 +29,8 @@ import {
 } from "src/actions/clientInfo.js";
 
 // libs:
+import { device } from "shared/libs/utils.js";
 import localforage from "localforage";
-
-// device sizes:
-import { device } from "src/constants/DeviceSizes.js";
 
 // jss:
 const styles = (theme) => ({
@@ -85,7 +83,7 @@ class LoginRegisterModal extends PureComponent {
 			cb: (data) => {
 				if (data.success) {
 					localforage.setItem("RemoteGames", data.authToken);
-					this.props.updateClientInfo({
+					this.props.updateClient({
 						authToken: data.authToken,
 						loggedIn: true,
 						...data.clientInfo,

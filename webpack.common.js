@@ -1,6 +1,10 @@
 // webpack.common.js
 const path = require("path");
+const webpack = require("webpack");
 module.exports = {
+	// import path from "path";
+	// import webpack from "webpack";
+	// export default {
 	entry: {
 		index: "./src/Index.jsx",
 		// hostControl: "./hostControl/hostControl.js",
@@ -13,13 +17,21 @@ module.exports = {
 		// `path` is the folder where Webpack will place your bundles
 		path: __dirname + "/bundles/",
 		// `publicPath` is where Webpack will load your bundles from (optional)
-		publicPath: __dirname + "/bundles/",
+		// publicPath: __dirname + "/bundles/",
 	},
+	target: "electron-main", // 02/28/20
+	// target: "electron-renderer",// 02/28/20
+	// target: "node",// 02/28/20
 	optimization: {
 		splitChunks: {
 			chunks: "async", // all, async, and initial
 		},
 	},
+	plugins: [
+		new webpack.DefinePlugin({
+			APPLICATION_VERSION: JSON.stringify(require("./package.json").version),
+		}),
+	],
 	module: {
 		rules: [
 			{
@@ -31,15 +43,28 @@ module.exports = {
 				test: /\.css$/,
 				use: ["style-loader", "css-loader"],
 			},
+			// {
+			// 	test: /\.node$/,
+			// 	use: "node-loader",
+			// },
 			{
 				test: /\.node$/,
-				use: "node-loader",
+				// use: "node-loader",
+				use: [
+					{
+						loader: "native-addon-loader",
+						options: {
+							name: "[name].[ext]", // default: '[name].[ext]'
+							from: ".", // default: '.'
+						},
+					},
+				],
 			},
 		],
 	},
 	externals: [
 		(() => {
-			var IGNORES = ["electron", "child_process"];
+			let IGNORES = ["electron", "child_process", "constants"];
 			return (context, request, callback) => {
 				if (IGNORES.indexOf(request) >= 0) {
 					return callback(null, "require('" + request + "')");
@@ -58,6 +83,7 @@ module.exports = {
 			sagas: path.resolve(__dirname, "src/sagas/"),
 			reducers: path.resolve(__dirname, "src/reducers/"),
 			constants: path.resolve(__dirname, "src/constants/"),
+			shared: path.resolve(__dirname, "src/shared/"),
 			src: path.resolve(__dirname, "src/"),
 		},
 	},
