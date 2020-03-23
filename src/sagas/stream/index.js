@@ -1,8 +1,8 @@
 import { all } from "redux-saga/effects";
 
-import handleChatActions from "./chat.js";
+import handleChatActions from "shared/sagas/chat.js";
 // import handlePlayersActions from "./players.js";
-import handleClientActions from "./client.js";
+import handleClientActions from "shared/sagas/client.js";
 
 // combine sagas?:
 // handles any outgoing actions w/ access to socket.io:

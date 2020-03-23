@@ -8,12 +8,15 @@ import stream from "./stream/index.js";
 import client from "shared/features/client.js";
 // import settings from "./settings.js";
 
+import alert from "shared/features/alert.js";
+
 const rootReducer = combineReducers({
 	stream,
 	// streams,
 	// account,
 	client,
 	// settings,
+	alert,
 	form,
 });
 

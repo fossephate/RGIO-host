@@ -28,6 +28,8 @@ import { connect } from "react-redux";
 // redux-saga:
 import handleStreamActions from "src/sagas/stream";
 import handleStreamEvents from "src/sockets/stream";
+// actions:
+import { openAlert } from "shared/features/alert.js";
 
 // libs:
 import { device } from "shared/libs/utils.js";
@@ -207,7 +209,8 @@ class App extends Component {
 						this.startStreaming({ ...args, ...data });
 					}, 2000);
 				} else {
-					alert(data.reason);
+					// alert(data.reason);
+					this.props.openAlert({ title: data.reason });
 				}
 			},
 		);
@@ -305,7 +308,7 @@ class App extends Component {
 										});
 										this.stream.run(stream);
 									} catch (error) {
-										alert(error);
+										this.props.openAlert({ title: error });
 									}
 									return;
 								}
@@ -326,7 +329,7 @@ class App extends Component {
 										});
 										this.stream.run(stream);
 									} catch (error) {
-										alert(error);
+										this.props.openAlert({ title: error });
 									}
 									return;
 								}
@@ -380,7 +383,8 @@ class App extends Component {
 			{ authToken: this.props.authToken },
 			(data) => {
 				if (!data.success && !suppressError) {
-					alert(data.reason);
+					// alert(data.reason);
+					this.props.openAlert({ title: data.reason });
 				}
 			},
 		);
@@ -401,7 +405,7 @@ class App extends Component {
 						},
 					});
 				} else {
-					alert(data.reason);
+					this.props.openAlert({ title: data.reason });
 				}
 			},
 		);
@@ -415,7 +419,7 @@ class App extends Component {
 	};
 
 	toggleDrawer = () => {
-		alert("test");
+		this.props.openAlert({ title: "test" });
 	};
 
 	render() {
@@ -434,7 +438,13 @@ class App extends Component {
 					<Route
 						path="/(login|register)"
 						render={(props) => {
-							return <LoginRegisterModal {...props} local={true} history={this.props.history} />;
+							return (
+								<LoginRegisterModal
+									{...props}
+									local={true}
+									history={this.props.history}
+								/>
+							);
 						}}
 					/>
 					<Route
@@ -478,6 +488,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
 	return {
+		openAlert: (data) => {
+			dispatch(openAlert(data));
+		},
 	};
 };
 

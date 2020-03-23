@@ -12,10 +12,11 @@ import { createMuiTheme } from "@material-ui/core/styles";
 
 // components:
 import App from "src/App.jsx";
+import MyAlert from "shared/components/general/MyAlert.jsx";
 
 // redux:
 import { Provider } from "react-redux";
-import { createStore, applyMiddleware, compose } from "redux";
+import { configureStore } from "@reduxjs/toolkit";
 
 import rootReducer from "./reducers";
 
@@ -26,131 +27,145 @@ import handleAccountEvents from "src/sockets/account/index.js";
 
 // libs:
 import socketio from "socket.io-client";
-import merge from "deepmerge";
-
-const sagaMiddleware = createSagaMiddleware();
-
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
-let preloadedState = {
-	client: {
-		authToken: null,
-		loggedIn: false,
-		userid: null,
-		username: "???",
-		connectedAccounts: [],
-		validUsernames: [],
-		usernameIndex: 0,
-		waitlisted: false,
-		timePlayed: 0,
-		emailVerified: false,
-		roles: {},
-	},
-	stream: {
-		// videoServerIP: null,
-		// videoServerPort: null,
-		// hostServerIP: null,
-		// hostServerPort: null,
-
-		chat: {
-			messages: [],
-			userids: [],
-		},
-		accountMap: {},
-	},
-};
-
-const store = createStore(
-	rootReducer,
-	preloadedState,
-	composeEnhancers(applyMiddleware(sagaMiddleware)),
-);
-
-let accountConnection = socketio("https://remotegames.io", {
-	path: "/8099/socket.io",
-	transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
-});
-
-// listen to events and dispatch actions:
-handleAccountEvents(accountConnection, store.dispatch);
-
-// handle outgoing events & listen to actions:
-// and maybe dispatch more actions:
-sagaMiddleware.run(handleAccountActions, {
-	socket: accountConnection,
-	dispatch: store.dispatch,
-});
 
 class Index extends Component {
 	constructor(props) {
 		super(props);
 
-		this.theme = createMuiTheme({
-			palette: {
-				type: "dark",
-				primary: {
-					main: "#2181ff", // #2181ff
-				},
-				secondary: {
-					main: "#ff3b3b",
-				},
+		this.state = {
+			theme: this.getTheme("dark"),
+		};
+
+		let preloadedState = {
+			client: {
+				authToken: null,
+				loggedIn: false,
+				userid: null,
+				username: "???",
+				connectedAccounts: [],
+				validUsernames: [],
+				usernameIndex: 0,
+				waitlisted: false,
+				timePlayed: 0,
+				emailVerified: false,
+				roles: {},
 			},
+			stream: {
+				// videoServerIP: null,
+				// videoServerPort: null,
+				// hostServerIP: null,
+				// hostServerPort: null,
+
+				chat: {
+					messages: [],
+					userids: [],
+				},
+				accountMap: {},
+			},
+		};
+
+		this.sagaMiddleware = createSagaMiddleware();
+
+		this.store = configureStore({
+			reducer: rootReducer,
+			preloadedState: preloadedState,
+			middleware: [this.sagaMiddleware],
 		});
 
-		// let currentValue = null;
-		// const unsubscribe = store.subscribe(() => {
-		// 	let previousValue = currentValue;
-		// 	currentValue = store.getState().settings.theme;
-		// 	if (previousValue !== currentValue) {
-		// 		console.log("theme changed");
-		// 		// this.switchTheme(currentValue);
-		// 		this.setState({});
-		// 	}
-		// });
+		this.accountConnection = socketio("https://remotegames.io", {
+			path: "/8099/socket.io",
+			transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
+		});
+
+		// listen to events and dispatch actions:
+		handleAccountEvents(this.accountConnection, this.store.dispatch);
+
+		// handle outgoing events & listen to actions:
+		// and maybe dispatch more actions:
+		this.sagaMiddleware.run(handleAccountActions, {
+			socket: this.accountConnection,
+			dispatch: this.store.dispatch,
+		});
 	}
 
-	switchTheme = (themeName) => {
+	getTheme = (themeName) => {
+		let theme = {};
 		switch (themeName) {
 			case "light":
-				this.theme = merge(this.theme, {
-					palette: {
-						type: "light",
-					},
-				});
-				break;
-			case "dark":
-				this.theme = merge(this.theme, {
-					palette: {
-						type: "dark",
-					},
-				});
-				break;
-			case "mint":
-				this.theme = merge(this.theme, {
+				theme = {
 					palette: {
 						type: "light",
 						primary: {
-							main: "#16d0f4",
+							main: "#2181ff", // #2181ff
 						},
 						secondary: {
-							main: "#24d2ac",
+							main: "#ff3b3b",
 						},
 						background: {
-							paper: "#5ae097",
+							paper: "#fafafa",
 						},
 					},
-				});
+				};
+				break;
+			case "ogdark":
+				theme = {
+					palette: {
+						type: "dark",
+						primary: {
+							main: "#2181ff",
+						},
+						secondary: {
+							main: "#ff3b3b",
+						},
+						background: {
+							paper: "#424242",
+						},
+					},
+				};
+				break;
+			case "dark":
+				theme = {
+					palette: {
+						type: "dark",
+						primary: {
+							main: "#0d52a9",
+						},
+						secondary: {
+							main: "#a90d0d",
+						},
+						background: {
+							paper: "#202020",
+						},
+					},
+				};
+				break;
+			case "spooky":
+				theme = {
+					palette: {
+						type: "dark",
+						primary: {
+							main: "#ff7930",
+						},
+						secondary: {
+							main: "#000",
+							// main: "#a73ae7",
+						},
+						background: {
+							paper: "#2f2f2f",
+						},
+					},
+				};
 				break;
 		}
-		this.theme = createMuiTheme(this.theme);
-	}
+		return createMuiTheme(theme);
+	};
 
 	render() {
 		console.log("re-rendering index");
 
 		return (
-			<Provider store={store}>
-				<ThemeProvider theme={this.theme}>
+			<Provider store={this.store}>
+				<ThemeProvider theme={this.state.theme}>
 					<CssBaseline />
 					<HashRouter>
 						<Switch>
@@ -161,14 +176,15 @@ class Index extends Component {
 									return (
 										<App
 											{...props}
-											store={store}
-											sagaMiddleware={sagaMiddleware}
-											accountConnection={accountConnection}
+											store={this.store}
+											sagaMiddleware={this.sagaMiddleware}
+											accountConnection={this.accountConnection}
 										/>
 									);
 								}}
 							/>
 						</Switch>
+						<MyAlert/>
 					</HashRouter>
 				</ThemeProvider>
 			</Provider>

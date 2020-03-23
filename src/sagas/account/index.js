@@ -1,6 +1,6 @@
 import { all } from "redux-saga/effects";
 
-import handleClientActions from "./clientInfo.js";
+import handleClientActions from "shared/sagas/client.js";
 
 // combine sagas?:
 // handles any outgoing actions w/ access to socket.io:
