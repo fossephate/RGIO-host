@@ -279,7 +279,7 @@ export class Lagless2Host {
 				videoFormat = "gdigrab";
 				videoInput = settings.windowTitle ? `title=${settings.windowTitle}` : "desktop";
 			}
-		} else if (os === "linux") {
+		} else if (this.os === "linux") {
 			videoFormat = "x11grab";
 			videoInput = `:0.0+${settings.offsetX},${settings.offsetY}`;
 		}

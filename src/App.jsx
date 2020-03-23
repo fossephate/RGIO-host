@@ -153,11 +153,13 @@ class App extends Component {
 		// 	return true;
 		// }
 
-		if (!this.props.loggedIn && this.props.history.location.pathname !== "/login") {
+		let pathname = this.props.history.location.pathname;
+
+		if (!this.props.loggedIn && pathname !== "/login" && pathname !== "/register") {
 			this.props.history.push("/login");
 		}
 
-		if (this.props.loggedIn && this.props.history.location.pathname === "/login") {
+		if (this.props.loggedIn && (pathname === "/login" || pathname === "/register")) {
 			this.props.history.push("/");
 		}
 
