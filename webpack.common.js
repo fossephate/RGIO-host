@@ -43,23 +43,23 @@ module.exports = {
 				test: /\.css$/,
 				use: ["style-loader", "css-loader"],
 			},
-			// {
-			// 	test: /\.node$/,
-			// 	use: "node-loader",
-			// },
 			{
 				test: /\.node$/,
-				// use: "node-loader",
-				use: [
-					{
-						loader: "native-addon-loader",
-						options: {
-							name: "[name].[ext]", // default: '[name].[ext]'
-							from: ".", // default: '.'
-						},
-					},
-				],
+				use: "node-loader",
 			},
+			// {
+			// 	test: /\.node$/,
+			// 	// use: "node-loader",
+			// 	use: [
+			// 		{
+			// 			loader: "native-addon-loader",
+			// 			options: {
+			// 				name: "[name].[ext]", // default: '[name].[ext]'
+			// 				from: ".", // default: '.'
+			// 			},
+			// 		},
+			// 	],
+			// },
 		],
 	},
 	externals: [

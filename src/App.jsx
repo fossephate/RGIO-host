@@ -8,7 +8,7 @@ import { Route, Switch, withRouter } from "react-router";
 import { withStyles } from "@material-ui/core/styles";
 // components:
 
-import VideoSettingsForm from "src/components/Forms/VideoSettingsForm.jsx";
+import VideoSettingsForm from "src/components/forms/VideoSettingsForm.jsx";
 import TitleBar from "src/components/appBar/TitleBar.jsx";
 import AppBar from "src/components/appBar/AppBar.jsx";
 import Chat from "shared/components/chat/Chat.jsx";
