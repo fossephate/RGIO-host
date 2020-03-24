@@ -41,6 +41,27 @@ import socketio from "socket.io-client";
 // recompose:
 import { compose } from "recompose";
 
+let os = "windows";
+let platform;
+
+if (require.main === module) {
+	platform = process.platform;
+} else {
+	platform = window.process.platform;
+}
+
+switch (platform) {
+	case "win32":
+		os = "windows";
+		break;
+	case "linux":
+		os = "linux";
+		break;
+	default:
+		os = "linux";
+		break;
+}
+
 // jss:
 const styles = (theme) => ({
 	root: {
@@ -358,8 +379,14 @@ class App extends Component {
 		}
 
 		// start control host:
+		let catLocation;
+		if (os === "windows") {
+			catLocation = app.getAppPath() + "\\misc\\utils\\cat.exe";
+		} else if (os === "linux") {
+			// catLocation = app.getAppPath() + "\\misc\\utils\\cat";
+			catLocation = "cat";
+		}
 
-		let catLocation = app.getAppPath() + "\\misc\\utils\\cat.exe";
 		let customScriptLocation = app.getAppPath() + "\\hostControl\\customControl.js";
 		// read customControl.js file from disk:
 		let catProc = spawn(catLocation, [customScriptLocation]);
