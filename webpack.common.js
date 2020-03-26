@@ -32,6 +32,10 @@ module.exports = {
 			APPLICATION_VERSION: JSON.stringify(require("./package.json").version),
 		}),
 	],
+
+	resolveLoader: {
+		modules: ["node_modules", path.resolve(__dirname, "web_loaders")],
+	},
 	module: {
 		rules: [
 			{
@@ -43,22 +47,31 @@ module.exports = {
 				test: /\.css$/,
 				use: ["style-loader", "css-loader"],
 			},
+			// {
+			// 	test: /\.node$/,
+			// 	use: "node-loader",
+			// },
 			{
 				test: /\.node$/,
-				use: "node-loader",
+				loader: "native-node-loader",
+			},
+			// fix @serialport native loading!:
+			{
+				test: /(win32|linux|darwin)\.js$/,
+				loader: "string-replace-loader",
+				options: {
+					search: "const binding = require('bindings')('bindings.node')",
+					replace: "const binding = require('../build/Release/bindings.node')",
+				},
 			},
 			// {
 			// 	test: /\.node$/,
-			// 	// use: "node-loader",
-			// 	use: [
-			// 		{
-			// 			loader: "native-addon-loader",
-			// 			options: {
-			// 				name: "[name].[ext]", // default: '[name].[ext]'
-			// 				from: ".", // default: '.'
-			// 			},
-			// 		},
-			// 	],
+			// 	loader: "native-ext-loader",
+			// 	options: {
+			// 		// rewritePath: path.resolve(__dirname, "dist"),
+			// 		rewritePath: "./node_modules/robotjs/",
+			// 		// basePath: ["node_modules"],
+			// 	},
 			// },
 		],
 	},
@@ -75,6 +88,8 @@ module.exports = {
 	],
 	// 	modules: [path.resolve(__dirname, "app"), "node_modules"],
 	resolve: {
+		// modules: ["node_modules", "node_modules/@serialport/"],
+		// mainFiles: ["index", "node_modules/serialport"],
 		alias: {
 			libs: path.resolve(__dirname, "src/libs/"),
 			components: path.resolve(__dirname, "src/components/"),

@@ -2,7 +2,7 @@ let screenSize = robot.getScreenSize();
 // let pressedKeys = [];
 // let prevMouseBtns = { left: 0, right: 0, middle: 0 };
 
-this.socket.on("controllerState", (data) => {
+this.hostConnection.on("controllerState", (data) => {
 	// let cNum = data["cNum"];
 	// let btns = data["btns"];
 	// let LX = data["axes"][0];
@@ -25,7 +25,7 @@ this.socket.on("controllerState", (data) => {
 	);
 });
 
-this.socket.on("keyboardState", (data) => {
+this.hostConnection.on("keyboardState", (data) => {
 	// data.keys will be a list of keys pressed:
 	for (let i = 0; i < data.keys; i++) {
 		data.keys[i] = data.keys[i].replace(/[^0-9a-z]/gi, "");
@@ -47,7 +47,7 @@ this.socket.on("keyboardState", (data) => {
 	}
 });
 
-this.socket.on("mouseState", (data) => {
+this.hostConnection.on("mouseState", (data) => {
 	for (let which in this.prevMouseBtns) {
 		if (this.prevMouseBtns[which] != data.btns[which]) {
 			robot.mouseToggle(data.btns[which] ? "down" : "up", which);
@@ -59,23 +59,13 @@ this.socket.on("mouseState", (data) => {
 	robot.moveMouse(x, y);
 });
 
-this.socket.on("chatMessage", (msgObj) => {
-	console.log(msgObj);
+this.hostConnection.on("chatMessage", (msgObj) => {
+	// console.log(msgObj);
 	// ignore replayed messages:
 	if (msgObj.isReplay) {
 		return;
 	}
 	if (msgObj.text == "!test") {
-		this.socket.emit("botMessage", { text: "reply!" });
-	}
-});
-
-this.socket.on("chatMessage", (msgObj) => {
-	// ignore replayed messages:
-	if (msgObj.isReplay) {
-		return;
-	}
-	if (msgObj.text == "!test") {
-		this.socket.emit("botMessage", "reply!");
+		this.hostConnection.emit("botMessage", { text: "reply!" });
 	}
 });

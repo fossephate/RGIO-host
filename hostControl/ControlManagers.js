@@ -22,6 +22,8 @@ export class ControllerManager {
 				setTimeout(() => {
 					if (controller.synced) {
 						this.switchControllers.push(controller);
+					} else {
+						controller.closeConnection();
 					}
 				}, 1000);
 			}

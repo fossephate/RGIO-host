@@ -14,8 +14,8 @@ import MyAppBar from "shared/components/general/MyAppBar.jsx";
 import { withStyles } from "@material-ui/core/styles";
 
 // components:
-import { Button, MenuItem, Menu, IconButton, Typography } from "@material-ui/core";
-import { fade } from "@material-ui/core/styles/colorManipulator";
+import { MenuItem, IconButton, Typography } from "@material-ui/core";
+import { CircularProgress } from "@material-ui/core";
 
 // icons:
 // import {
@@ -105,7 +105,9 @@ class AppBar extends PureComponent {
 
 	handleCheckForUpdates = () => {
 		this.clicked = true;
-		ipcRenderer.send("checkForUpdates");
+		if (!this.state.downloading) {
+			ipcRenderer.send("checkForUpdates");
+		}
 	};
 
 	handleLoginRegister = () => {
@@ -156,17 +158,26 @@ class AppBar extends PureComponent {
 			</>
 		);
 
+		let updateButton;
+		if (this.state.downloading) {
+			updateButton = <CircularProgress />;
+		} else if (this.state.updateAvailable) {
+			updateButton = (
+				<IconButton onClick={this.handleUpdate} color="inherit">
+					<SystemUpdateAltOutlinedIcon />
+				</IconButton>
+			);
+		} else {
+			updateButton = (
+				<IconButton onClick={this.handleCheckForUpdates} color="inherit">
+					<UpdateIcon />
+				</IconButton>
+			);
+		}
+
 		let desktop = (
 			<>
-				{this.state.updateAvailable ? (
-					<IconButton onClick={this.handleUpdate} color="inherit">
-						<SystemUpdateAltOutlinedIcon />
-					</IconButton>
-				) : (
-					<IconButton onClick={this.handleCheckForUpdates} color="inherit">
-						<UpdateIcon />
-					</IconButton>
-				)}
+				{updateButton}
 				<IconButton onClick={this.handleAccount} color="inherit">
 					<AccountCircleIcon />
 				</IconButton>

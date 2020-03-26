@@ -4,34 +4,48 @@ import robot from "robotjs";
 window.robot = robot;
 
 export default class HostControl {
-	constructor(host, port, streamKey, options) {
-		this.host = host;
-		this.port = port;
+	constructor(hostConnection, options) {
 		this.streamKey = streamKey;
+		this.hostConnection = hostConnection || null;
 
-		this.socket = null;
 		this.timer = null;
 		this.options = options;
 		this.pressedKeys = [];
 		this.prevMouseBtns = { left: 0, right: 0, middle: 0 };
 	}
 
-	init = () => {
-		this.socket = socketio(`https://${this.host}`, {
-			path: `/${this.port}/socket.io`,
+	setupAuthentiction = (streamKey) => {
+
+		this.hostConnection.on("connect", () => {
+			this.hostConnection.emit("hostAuthenticate", {
+				streamKey: streamKey,
+			});
+		});
+
+		clearInterval(this.timer);
+		this.timer = setInterval(() => {
+			this.hostConnection.emit("hostAuthenticate", {
+				streamKey: streamKey,
+			});
+		}, 10000);
+	};
+
+	connectServers = (options) => {
+		this.hostConnection = socketio(`https://${options.hostIP}`, {
+			path: `/${options.hostPort}/socket.io`,
 			reconnect: true,
 		});
 
-		this.socket.on("connect", () => {
-			this.socket.emit("hostAuthenticate", {
-				streamKey: this.streamKey,
-			});
-		});
-		this.timer = setInterval(() => {
-			this.socket.emit("hostAuthenticate", {
-				streamKey: this.streamKey,
-			});
-		}, 10000);
+		// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		// console.log(
+		// 	`${options.hostIP}:${options.hostPort}`,
+		// );
+		// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
+		this.setupAuthentication(options.streamKey);
+	};
+
+	init = () => {
 
 		this.controllerManager = new ControllerManager(this.options.controllerCount);
 		if (this.options.controlSwitch) {
@@ -41,7 +55,6 @@ export default class HostControl {
 			this.controllerManager.init();
 		}
 
-
 		if (this.options.keyboardEnabled || this.options.mouseEnabled) {
 			// set delay to 0ms:
 			robot.setKeyboardDelay(0);
@@ -50,8 +63,10 @@ export default class HostControl {
 	}
 
 	destroy = () => {
-		if (this.socket) {
-			this.socket.close();
+		if (this.hostConnection) {
+			this.hostConnection.removeAllListeners();
+			this.hostConnection.destroy();
+			this.hostConnection = null;
 		}
 		clearInterval(this.timer);
 

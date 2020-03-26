@@ -218,7 +218,7 @@ export class Lagless2Host {
 
 		this.ffmpegInstanceVideo = spawn(this.ffmpegLocation, this.getVideoArgs(settings));
 
-		if (settings.debug) {
+		if (settings.debug || window.log) {
 			// this.ffmpegInstanceVideo.stdout.on("data", (data) => {
 			// 	console.log(`stdout: ${data}`);
 			// });

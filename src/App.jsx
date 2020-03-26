@@ -393,12 +393,17 @@ class App extends Component {
 		catProc.stdout.setEncoding("utf8");
 		catProc.stdout.on("data", (data) => {
 			data = data.toString();
-			this.hostControl = new HostControl(args.hostIP, args.hostPort, args.streamKey, {
+			this.hostControl = new HostControl(this.hostConnection, {
 				controllerCount: args.controllerCount,
 				keyboardEnabled: args.keyboardEnabled,
 				mouseEnabled: args.mouseEnabled,
 				controlSwitch: args.controlSwitch,
 			});
+			// this.hostControl.connectServers({
+			// 	hostIP: args.hostIP,
+			// 	hostPort: args.hostPort,
+			// 	streamKey: args.streamKey,
+			// });
 			this.hostControl.init();
 			this.hostControl.run(data);
 		});
