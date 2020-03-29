@@ -60,8 +60,16 @@ module.exports = {
 				test: /(win32|linux|darwin)\.js$/,
 				loader: "string-replace-loader",
 				options: {
-					search: "const binding = require('bindings')('bindings.node')",
-					replace: "const binding = require('../build/Release/bindings.node')",
+					multiple: [
+						{
+							search: "const binding = require('bindings')('bindings.node')",
+							replace: "const binding = require('../build/Release/bindings.node')",
+						},
+						{
+							search: "const PollerBindings = require('bindings')('bindings.node').Poller",
+							replace: "const PollerBindings = require('../build/Release/bindings.node').Poller",
+						},
+					],
 				},
 			},
 			// {
