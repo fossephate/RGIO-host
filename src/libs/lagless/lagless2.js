@@ -48,8 +48,11 @@ export class Lagless2Host {
 		this.ffmpegInstanceVideo = null;
 		this.ffmpegInstanceAudio = null;
 		this.appPath = appPath || null;
-		this.authHostInterval = null;
-		this.authVideoInterval = null;
+		// this.authHostTimer = null;
+		this.authVideoTimer = null;
+
+		this.videoStreamTimer = null;
+		this.audioStreamTimer = null;
 
 		this.settings = {
 			...args,
@@ -63,9 +66,8 @@ export class Lagless2Host {
 			offsetY: args.offsetY || 0,
 			width: args.width || 1280,
 			height: args.height || 720,
-			dshowVideoDevice: args.dshowVideoDevice || null,
-			dshowAudioDevice: args.dshowAudioDevice || null,
 			windowTitle: args.windowTitle || null,
+			videoDevice: args.videoDevice || null,
 			audioDevice: args.audioDevice || null,
 			audioBitrate: args.audioBitrate || 128,
 			audioRate: args.audioRate || 44100,
@@ -146,7 +148,7 @@ export class Lagless2Host {
 		// this.hostConnection.on("connect", () => {
 		// 	this.hostConnection.emit("authenticate", { streamKey: streamKey });
 		// });
-		// this.authHostInterval = setInterval(() => {
+		// this.authHostTimer = setInterval(() => {
 		// 	this.hostConnection.emit("authenticate", { streamKey: streamKey });
 		// }, 10000);
 
@@ -157,7 +159,7 @@ export class Lagless2Host {
 		this.videoConnection.on("disconnect", () => {
 			this.stop();
 		});
-		this.authVideoInterval = setInterval(() => {
+		this.authVideoTimer = setInterval(() => {
 			this.videoConnection.emit("hostAuthenticate", { streamKey: streamKey });
 			if (this.videoConnection.sendBuffer.length > 2000) {
 				this.videoConnection.sendBuffer.splice(
@@ -199,11 +201,13 @@ export class Lagless2Host {
 	};
 
 	handleVideoClose = (code) => {
+		clearTimeout(this.videoStreamTimer);
 		console.log(`closing code: ${code}`);
 		this.createVideoStream(this.settings);
 	};
 
-	handleAudioClose = () => {
+	handleAudioClose = (code) => {
+		clearTimeout(this.audioStreamTimer);
 		console.log(`closing code: ${code}`);
 		this.createAudioStream(this.settings);
 	};
@@ -218,16 +222,18 @@ export class Lagless2Host {
 
 		this.ffmpegInstanceVideo = spawn(this.ffmpegLocation, this.getVideoArgs(settings));
 
-		if (settings.debug || window.log) {
+		// if (settings.debug) {
 			// this.ffmpegInstanceVideo.stdout.on("data", (data) => {
 			// 	console.log(`stdout: ${data}`);
 			// });
 			this.ffmpegInstanceVideo.stderr.on("data", (data) => {
-				console.log(`stderr: ${data}`);
+				if (window.log) {
+					console.log(`stderr (video): ${data}`);
+				}
 			});
-		}
+		// }
 		this.ffmpegInstanceVideo.on("close", this.handleVideoClose);
-		this.ffmpegInstanceVideo.stdout.on("data", this.sendStream);
+		this.ffmpegInstanceVideo.stdout.on("data", this.sendVideoStream);
 	};
 
 	createAudioStream = (settings) => {
@@ -239,16 +245,18 @@ export class Lagless2Host {
 		}
 
 		this.ffmpegInstanceAudio = spawn(this.ffmpegLocation, this.getAudioArgs(settings));
-		if (settings.debug) {
+		// if (settings.debug) {
 			// this.ffmpegInstanceAudio.stdout.on("data", (data) => {
 			// 	console.log(`stdout: ${data}`);
 			// });
 			this.ffmpegInstanceAudio.stderr.on("data", (data) => {
-				console.log(`stderr: ${data}`);
+				if (window.log) {
+					console.log(`stderr (audio): ${data}`);
+				}
 			});
-		}
+		// }
 		this.ffmpegInstanceAudio.on("close", this.handleAudioClose);
-		this.ffmpegInstanceAudio.stdout.on("data", this.sendStream);
+		this.ffmpegInstanceAudio.stdout.on("data", this.sendAudioStream);
 	};
 
 	// https://stackoverflow.com/questions/51143100/framerate-vs-r-vs-filter-fps
@@ -271,9 +279,9 @@ export class Lagless2Host {
 		let videoInput;
 		let videoFormat;
 		if (this.os === "windows") {
-			if (settings.dshowVideoDevice && settings.capture == "device") {
+			if (settings.videoDevice && settings.capture == "device") {
 				videoFormat = "dshow";
-				videoInput = `video=${settings.dshowVideoDevice}`;
+				videoInput = `video=${settings.videoDevice}`;
 			} else {
 				// capture with gdigrab:
 				videoFormat = "gdigrab";
@@ -291,14 +299,14 @@ export class Lagless2Host {
 				// input:
 				`-f ${videoFormat}`,
 				this.os === "windows" &&
-					!settings.dshowVideoDevice &&
+					!settings.videoDevice &&
 					`-offset_x ${settings.offsetX}`,
 				this.os === "windows" &&
-					!settings.dshowVideoDevice &&
+					!settings.videoDevice &&
 					`-offset_y ${settings.offsetY}`,
 				widthHeightArgs,
 				`-framerate ${settings.captureRate}`,
-				!settings.dshowVideoDevice && settings.drawMouse && "-draw_mouse 1",
+				!settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
 				`-i ${videoInput}`,
 
 				// output settings:
@@ -404,7 +412,7 @@ export class Lagless2Host {
 					`Stream Connected: ${request.socket.remoteAddress}:${request.socket.remotePort}`,
 				);
 
-				request.on("data", this.sendStream);
+				request.on("data", this.sendVideoStream);
 
 				request.on("end", () => {
 					console.log("stream ended");
@@ -413,11 +421,25 @@ export class Lagless2Host {
 			.listen(port);
 	};
 
-	sendStream = (data) => {
+	sendVideoStream = (data) => {
+		clearTimeout(this.videoStreamTimer);
+		this.videoStreamTimer = setTimeout(this.handleVideoClose, 3000);
 		this.videoConnection.emit("videoData", data);
 	};
 
+	sendAudioStream = (data) => {
+		clearTimeout(this.audioStreamTimer);
+		this.audioStreamTimer = setTimeout(this.handleAudioClose, 3000);
+		this.videoConnection.emit("videoData", data);
+	};
+
+
+
 	run = () => {
+		// clearInterval(this.authHostTimer);
+		// clearInterval(this.authVideoTimer);
+		clearTimeout(this.videoStreamTimer);
+		clearTimeout(this.audioStreamTimer);
 		console.log("ffmpeg " + this.getVideoArgs(this.settings).join(" "));
 		if (this.settings.audioDevice) {
 			console.log("ffmpeg " + this.getAudioArgs(this.settings).join(" "));
@@ -434,8 +456,10 @@ export class Lagless2Host {
 	};
 
 	stop = () => {
-		clearInterval(this.authHostInterval);
-		clearInterval(this.authVideoInterval);
+		// clearInterval(this.authHostTimer);
+		clearInterval(this.authVideoTimer);
+		clearTimeout(this.videoStreamTimer);
+		clearTimeout(this.audioStreamTimer);
 		try {
 			this.ffmpegInstanceVideo.off("close", this.handleVideoClose);
 			this.ffmpegInstanceVideo.kill();
@@ -471,9 +495,9 @@ if (require.main === module) {
 		);
 		console.log(
 			"optional args: width, height, offsetX, offsetY, framerate, \
-			resolution, captureRate, videoBitrate, windowTitle, audioDevice, \
+			resolution, captureRate, videoBitrate, windowTitle, \
 			audioBitrate, audioRate, videoEncoder, useCustomRecorderPort, \
-			dshowVideoDevice, dshowAudioDevice, combineAV, drawMouse.",
+			videoDevice, audioDevice, combineAV, drawMouse.",
 		);
 		console.log(myArgs);
 	}

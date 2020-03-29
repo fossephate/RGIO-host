@@ -46,7 +46,7 @@ module.exports = function(content) {
 	let resourcePath = `${results[1]}${results[2]}`;
 	resourcePath = resourcePath.replace(/\\/g, "/");
 
-	console.log(`\nrp: ${resourcePath}`);
+	// console.log(`\nrp: ${resourcePath}`);
 	// console.log(`rsPath: ${resourcePath}`);
 	// console.log(`rContext: ${this.rootContext}`);
 	// console.log(`wt: ${loaderUtils.stringifyRequest(this, requirePath)}`);

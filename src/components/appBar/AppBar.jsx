@@ -41,7 +41,6 @@ import { compose } from "recompose";
 
 // elctron ipc:
 import { ipcRenderer } from "electron";
-const { dialog } = require("electron");
 
 // jss:
 const styles = (theme) => ({
@@ -100,7 +99,10 @@ class AppBar extends PureComponent {
 	}
 
 	handleUpdate = () => {
-		ipcRenderer.send("downloadUpdate");
+		if (!this.state.downloading) {
+			this.setState({ downloading: true });
+			ipcRenderer.send("downloadUpdate");
+		}
 	};
 
 	handleCheckForUpdates = () => {
@@ -160,7 +162,7 @@ class AppBar extends PureComponent {
 
 		let updateButton;
 		if (this.state.downloading) {
-			updateButton = <CircularProgress />;
+			updateButton = <CircularProgress variant="indeterminate" color="secondary" />;
 		} else if (this.state.updateAvailable) {
 			updateButton = (
 				<IconButton onClick={this.handleUpdate} color="inherit">

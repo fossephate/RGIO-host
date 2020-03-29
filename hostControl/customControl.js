@@ -65,7 +65,7 @@ this.hostConnection.on("chatMessage", (msgObj) => {
 	if (msgObj.isReplay) {
 		return;
 	}
-	if (msgObj.text == "!test") {
+	if (msgObj.text === "!test") {
 		this.hostConnection.emit("botMessage", { text: "reply!" });
 	}
 });

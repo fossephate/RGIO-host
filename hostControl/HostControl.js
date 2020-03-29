@@ -1,14 +1,16 @@
 import socketio from "socket.io-client";
-import { ControllerManager/*, KeyboardMouseManager*/ } from "./ControlManagers.js";
+import { XboxControllerManager, SwitchControllerManager/*, KeyboardMouseManager*/ } from "./ControlManagers.js";
 import robot from "robotjs";
 window.robot = robot;
 
 export default class HostControl {
 	constructor(hostConnection, options) {
-		this.streamKey = streamKey;
+		this.streamKey = null;
 		this.hostConnection = hostConnection || null;
 
-		this.timer = null;
+		this.controllerManager = null;
+
+		this.authHostTimer = null;
 		this.options = options;
 		this.pressedKeys = [];
 		this.prevMouseBtns = { left: 0, right: 0, middle: 0 };
@@ -22,8 +24,8 @@ export default class HostControl {
 			});
 		});
 
-		clearInterval(this.timer);
-		this.timer = setInterval(() => {
+		clearInterval(this.authHostTimer);
+		this.authHostTimer = setInterval(() => {
 			this.hostConnection.emit("hostAuthenticate", {
 				streamKey: streamKey,
 			});
@@ -36,22 +38,23 @@ export default class HostControl {
 			reconnect: true,
 		});
 
-		// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-		// console.log(
-		// 	`${options.hostIP}:${options.hostPort}`,
-		// );
-		// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-
-		this.setupAuthentication(options.streamKey);
+		if (options.streamKey) {
+			this.setupAuthentication(options.streamKey);
+		}
 	};
 
 	init = () => {
 
-		this.controllerManager = new ControllerManager(this.options.controllerCount);
-		if (this.options.controlSwitch) {
-			this.controllerManager.switchMode = true;
-		}
+
 		if (this.options.controllerCount > 0) {
+		
+			if (this.options.controlSwitch) {
+				this.controllerManager = new SwitchControllerManager(this.options.controllerCount);
+			} else {
+				this.controllerManager = new XboxControllerManager(this.options.controllerCount);
+			}
+
+		
 			this.controllerManager.init();
 		}
 
@@ -70,7 +73,9 @@ export default class HostControl {
 		}
 		clearInterval(this.timer);
 
-		this.controllerManager.destroy();
+		if (this.controllerManager) {
+			this.controllerManager.destroy();
+		}
 	};
 
 	run = (customControl) => {

@@ -1,6 +1,6 @@
 {
 	"name": "rgio-host",
-	"version": "0.1.19",
+	"version": "0.1.31",
 	"description": "Remote Games Hosting App",
 	"main": "main.js",
 	"scripts": {

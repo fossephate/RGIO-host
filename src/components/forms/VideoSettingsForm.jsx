@@ -693,7 +693,7 @@ class VideoSettingsForm extends Component {
 						<>
 							<div className={classes.dropdownContainer}>
 								<Field
-									name="dshowVideoDeviceDropdown"
+									name="videoDeviceDropdown"
 									component={renderSelectField}
 									label="Video Device Name"
 									labelWidth={100}
@@ -702,7 +702,7 @@ class VideoSettingsForm extends Component {
 									{this.getDshowDeviceMenuItems()}
 								</Field>
 								<Field
-									name="dshowVideoDevice"
+									name="videoDevice"
 									component={renderTextField}
 									label="Video Device Name"
 									variant="outlined"
