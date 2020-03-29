@@ -264,7 +264,7 @@ export class Lagless4Host {
 
 	resume() {}
 
-	run(stream) {
+	start(stream) {
 		this.stream = stream;
 
 		this.timer = setInterval(() => {

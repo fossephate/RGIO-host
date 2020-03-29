@@ -329,7 +329,7 @@ class App extends Component {
 											audio: audioConstraint,
 											video: { mandatory: { chromeMediaSourceId: source.id } },
 										});
-										this.stream.run(stream);
+										this.stream.start(stream);
 									} catch (error) {
 										this.props.openAlert({ title: error });
 									}
@@ -350,7 +350,7 @@ class App extends Component {
 												},
 											},
 										});
-										this.stream.run(stream);
+										this.stream.start(stream);
 									} catch (error) {
 										this.props.openAlert({ title: error });
 									}
@@ -375,7 +375,7 @@ class App extends Component {
 
 			this.stream.setupAuthentication(args.streamKey);
 
-			this.stream.run();
+			this.stream.start();
 		}
 
 		// start control host:
@@ -405,7 +405,7 @@ class App extends Component {
 			// 	streamKey: args.streamKey,
 			// });
 			this.hostControl.init();
-			this.hostControl.run(data);
+			this.hostControl.start(data);
 		});
 	};
 

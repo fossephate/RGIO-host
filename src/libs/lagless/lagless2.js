@@ -54,6 +54,8 @@ export class Lagless2Host {
 		this.videoStreamTimer = null;
 		this.audioStreamTimer = null;
 
+		this.stopped = false;
+
 		this.settings = {
 			...args,
 			debug: false,
@@ -203,13 +205,17 @@ export class Lagless2Host {
 	handleVideoClose = (code) => {
 		clearTimeout(this.videoStreamTimer);
 		console.log(`closing code: ${code}`);
-		this.createVideoStream(this.settings);
+		if (!this.stopped) {
+			this.createVideoStream(this.settings);
+		}
 	};
 
 	handleAudioClose = (code) => {
 		clearTimeout(this.audioStreamTimer);
 		console.log(`closing code: ${code}`);
-		this.createAudioStream(this.settings);
+		if (!this.stopped) {
+			this.createAudioStream(this.settings);
+		}
 	};
 
 	createVideoStream = (settings) => {
@@ -391,8 +397,8 @@ export class Lagless2Host {
 			"-f mpegts",
 			`-ar ${settings.audioRate}`, // 44100
 			"-ac 1", // new
-			// this.os === "windows" && "-audio_buffer_size 0", // new
-			`-audio_buffer_size ${settings.audioBufferSize}k`,
+			// this.os === "windows" && `-audio_buffer_size ${settings.audioBufferSize}k`, // new
+			// `-audio_buffer_size ${settings.audioBufferSize}k`,
 			`-bufsize ${settings.audioBufferSize}k`,
 			"-c:a mp2",
 			`-b:a ${settings.audioBitrate}k`,
@@ -435,9 +441,8 @@ export class Lagless2Host {
 
 
 
-	run = () => {
-		// clearInterval(this.authHostTimer);
-		// clearInterval(this.authVideoTimer);
+	start = () => {
+		this.stopped = false;
 		clearTimeout(this.videoStreamTimer);
 		clearTimeout(this.audioStreamTimer);
 		console.log("ffmpeg " + this.getVideoArgs(this.settings).join(" "));
@@ -456,6 +461,7 @@ export class Lagless2Host {
 	};
 
 	stop = () => {
+		this.stopped = true;
 		// clearInterval(this.authHostTimer);
 		clearInterval(this.authVideoTimer);
 		clearTimeout(this.videoStreamTimer);

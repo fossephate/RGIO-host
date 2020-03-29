@@ -57,7 +57,7 @@ module.exports = {
 			},
 			// fix @serialport native loading!:
 			{
-				test: /(win32|linux|darwin)\.js$/,
+				test: /(win32|linux|darwin|poller)\.js$/,
 				loader: "string-replace-loader",
 				options: {
 					multiple: [

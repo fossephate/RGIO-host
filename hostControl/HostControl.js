@@ -78,7 +78,11 @@ export default class HostControl {
 		}
 	};
 
-	run = (customControl) => {
+	stop = () => {
+		this.destroy();
+	};
+
+	start = (customControl) => {
 		eval(customControl);
 	};
 }
