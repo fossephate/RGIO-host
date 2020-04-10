@@ -9,14 +9,16 @@ export default class HostControl {
 		this.hostConnection = hostConnection || null;
 
 		this.controllerManager = null;
-
 		this.authHostTimer = null;
 		this.options = options;
+		
+		this.streamSettings = options.streamSettings;
 		this.pressedKeys = [];
 		this.prevMouseBtns = { left: 0, right: 0, middle: 0 };
+		this.prevMousePos = { x: 0, y: 0 };
 	}
 
-	setupAuthentiction = (streamKey) => {
+	setupAuthentication = (streamKey) => {
 
 		this.hostConnection.on("connect", () => {
 			this.hostConnection.emit("hostAuthenticate", {
@@ -71,7 +73,7 @@ export default class HostControl {
 			this.hostConnection.destroy();
 			this.hostConnection = null;
 		}
-		clearInterval(this.timer);
+		clearInterval(this.authHostTimer);
 
 		if (this.controllerManager) {
 			this.controllerManager.destroy();
@@ -83,6 +85,7 @@ export default class HostControl {
 	};
 
 	start = (customControl) => {
+		this.init();
 		eval(customControl);
 	};
 }

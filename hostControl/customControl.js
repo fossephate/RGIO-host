@@ -1,28 +1,9 @@
 let screenSize = robot.getScreenSize();
-// let pressedKeys = [];
-// let prevMouseBtns = { left: 0, right: 0, middle: 0 };
 
 this.hostConnection.on("controllerState", (data) => {
-	// let cNum = data["cNum"];
-	// let btns = data["btns"];
-	// let LX = data["axes"][0];
-	// let LY = data["axes"][1];
-	// let RX = data["axes"][2];
-	// let RY = data["axes"][3];
-	// let LT = data["axes"][4];
-	// let RT = data["axes"][5];
-	// this.controllerManager.sendState(cNum, btns, LX, LY, RX, RY, LT, RT);
-
-	this.controllerManager.sendState(
-		data.cNum,
-		data.btns,
-		data.axes[0],
-		data.axes[1],
-		data.axes[2],
-		data.axes[3],
-		data.axes[4],
-		data.axes[5],
-	);
+	if (this.controllerManager) {
+		this.controllerManager.sendState(data.cNum, data.btns, data.axes);
+	}
 });
 
 this.hostConnection.on("keyboardState", (data) => {
@@ -54,9 +35,14 @@ this.hostConnection.on("mouseState", (data) => {
 			this.prevMouseBtns[which] = data.btns[which];
 		}
 	}
-	let x = Math.round((data.x / 1280) * screenSize.width);
-	let y = Math.round((data.y / 720) * screenSize.height);
+	let x, y;
+	if (this.streamSettings.capture === "desktop") {
+		x = Math.round((data.x + this.streamSettings.offsetX) * this.streamSettings.width);
+		y = Math.round((data.y + this.streamSettings.offsetY) * this.streamSettings.height);
+	}
+
 	robot.moveMouse(x, y);
+	robot.scrollMouse(0, data.dScroll);
 });
 
 this.hostConnection.on("chatMessage", (msgObj) => {

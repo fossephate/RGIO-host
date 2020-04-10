@@ -591,7 +591,7 @@ class VideoSettingsForm extends Component {
 				</div>
 
 				<div style={{ display: "block" }}>
-					<Field name="streamType" component={renderRadioGroup} row>
+					<Field name="videoType" component={renderRadioGroup} row>
 						<FormControlLabel
 							value="mpeg2"
 							control={<Radio color="primary" />}

@@ -26,11 +26,11 @@ export class XboxControllerManager {
 		}
 	};
 
-	sendState = (cNum, btns, LX, LY, RX, RY, LT, RT) => {
+	sendState = (cNum, btns, axes) => {
 		if (!this.p) {
 			return;
 		}
-		let data = `${cNum} ${btns} ${LX} ${LY} ${RX} ${RY} ${LT} ${RT}\n`;
+		let data = `${cNum} ${btns} ${axes[0]} ${axes[1]} ${axes[2]} ${axes[3]} ${axes[4]} ${axes[5]}\n`;
 		this.p.stdin.write(data);
 	};
 }
@@ -69,16 +69,16 @@ export class SwitchControllerManager {
 		}
 	};
 
-	sendState = (cNum, btns, LX, LY, RX, RY) => {
+	sendState = (cNum, btns, axes) => {
 		if (!this.controllers[cNum]) {
 			console.log("controller not available!");
 			return;
 		}
 
-		this.controllers[cNum].axes[0] = LX;
-		this.controllers[cNum].axes[1] = LY;
-		this.controllers[cNum].axes[2] = RX;
-		this.controllers[cNum].axes[3] = RY;
+		this.controllers[cNum].axes[0] = axes[0];
+		this.controllers[cNum].axes[1] = axes[1];
+		this.controllers[cNum].axes[2] = axes[2];
+		this.controllers[cNum].axes[3] = axes[3];
 		this.controllers[cNum].setPacked(btns);
 		this.controllers[cNum].send();
 	};

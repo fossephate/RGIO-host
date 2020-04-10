@@ -132,7 +132,7 @@ class App extends Component {
 				captureRate: 60,
 				framerate: 30,
 				capture: "window",
-				streamType: "mpeg2",
+				videoType: "mpeg2",
 				offsetX: 0,
 				offsetY: 0,
 				controllerCount: 1,
@@ -282,7 +282,7 @@ class App extends Component {
 			args.audioDevice = args.audioDeviceDropdown;
 		}
 
-		if (args.streamType === "webRTC") {
+		if (args.videoType === "webRTC") {
 			this.videoConnection = socketio(`https://${args.videoIP}`, {
 				path: `/${args.videoPort}/socket.io`,
 				transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
@@ -360,7 +360,7 @@ class App extends Component {
 						}
 					});
 			});
-		} else if (args.streamType === "mpeg2") {
+		} else if (args.videoType === "mpeg2") {
 			this.videoConnection = socketio(`https://${args.videoIP}`, {
 				path: `/${args.videoPort}/socket.io`,
 				transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
@@ -394,17 +394,13 @@ class App extends Component {
 		catProc.stdout.on("data", (data) => {
 			data = data.toString();
 			this.hostControl = new HostControl(this.hostConnection, {
+				streamSettings: args,
 				controllerCount: args.controllerCount,
 				keyboardEnabled: args.keyboardEnabled,
 				mouseEnabled: args.mouseEnabled,
 				controlSwitch: args.controlSwitch,
 			});
-			// this.hostControl.connectServers({
-			// 	hostIP: args.hostIP,
-			// 	hostPort: args.hostPort,
-			// 	streamKey: args.streamKey,
-			// });
-			this.hostControl.init();
+			this.hostControl.setupAuthentication(args.streamKey);
 			this.hostControl.start(data);
 		});
 	};
