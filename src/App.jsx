@@ -381,13 +381,13 @@ class App extends Component {
 		// start control host:
 		let catLocation;
 		if (os === "windows") {
-			catLocation = app.getAppPath() + "\\misc\\utils\\cat.exe";
+			catLocation = app.getAppPath() + "/misc/utils/cat.exe";
 		} else if (os === "linux") {
 			// catLocation = app.getAppPath() + "\\misc\\utils\\cat";
 			catLocation = "cat";
 		}
 
-		let customScriptLocation = app.getAppPath() + "\\hostControl\\customControl.js";
+		let customScriptLocation = app.getAppPath() + "/hostControl/customControl.js";
 		// read customControl.js file from disk:
 		let catProc = spawn(catLocation, [customScriptLocation]);
 		catProc.stdout.setEncoding("utf8");

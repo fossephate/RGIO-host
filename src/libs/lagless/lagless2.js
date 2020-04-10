@@ -1,6 +1,7 @@
 const { spawn } = require("child_process");
 const http = require("http");
 const socketio = require("socket.io-client");
+const IS_MODULE = require.main === module;
 
 // todo:
 // re-combine with client side lagless2
@@ -87,7 +88,7 @@ export class Lagless2Host {
 		this.os = "windows";
 		let platform;
 
-		if (require.main === module) {
+		if (IS_MODULE) {
 			platform = process.platform;
 		} else {
 			platform = window.process.platform;
@@ -106,7 +107,7 @@ export class Lagless2Host {
 		}
 
 		let path;
-		if (require.main === module) {
+		if (IS_MODULE) {
 			if (process.pkg) {
 				path = process.execPath;
 				let index = path.lastIndexOf("\\");
@@ -298,7 +299,7 @@ export class Lagless2Host {
 		} else if (this.os === "linux") {
 			let displayNumber = settings.displayNumber;
 			let screenNumber = settings.screenNumber;
-			if (displayNumber === null || (screenNumber === null && require.main !== module)) {
+			if (displayNumber === null || (screenNumber === null && !IS_MODULE)) {
 				let reg = /^:(\d+)\.(\d+)$/;
 				let results = reg.exec(process.env.DISPLAY);
 				displayNumber = results[1];
@@ -494,7 +495,7 @@ export class Lagless2Host {
 	};
 }
 
-if (require.main === module) {
+if (!IS_MODULE) {
 	let myArgs = getArgs();
 
 	if (
