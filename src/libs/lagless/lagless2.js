@@ -231,14 +231,14 @@ export class Lagless2Host {
 		this.ffmpegInstanceVideo = spawn(this.ffmpegLocation, this.getVideoArgs(settings));
 
 		// if (settings.debug) {
-			// this.ffmpegInstanceVideo.stdout.on("data", (data) => {
-			// 	console.log(`stdout: ${data}`);
-			// });
-			this.ffmpegInstanceVideo.stderr.on("data", (data) => {
-				if (window.log) {
-					console.log(`stderr (video): ${data}`);
-				}
-			});
+		// this.ffmpegInstanceVideo.stdout.on("data", (data) => {
+		// 	console.log(`stdout: ${data}`);
+		// });
+		this.ffmpegInstanceVideo.stderr.on("data", (data) => {
+			if (window.log) {
+				console.log(`stderr (video): ${data}`);
+			}
+		});
 		// }
 		this.ffmpegInstanceVideo.on("close", this.handleVideoClose);
 		this.ffmpegInstanceVideo.stdout.on("data", this.sendVideoStream);
@@ -254,14 +254,14 @@ export class Lagless2Host {
 
 		this.ffmpegInstanceAudio = spawn(this.ffmpegLocation, this.getAudioArgs(settings));
 		// if (settings.debug) {
-			// this.ffmpegInstanceAudio.stdout.on("data", (data) => {
-			// 	console.log(`stdout: ${data}`);
-			// });
-			this.ffmpegInstanceAudio.stderr.on("data", (data) => {
-				if (window.log) {
-					console.log(`stderr (audio): ${data}`);
-				}
-			});
+		// this.ffmpegInstanceAudio.stdout.on("data", (data) => {
+		// 	console.log(`stdout: ${data}`);
+		// });
+		this.ffmpegInstanceAudio.stderr.on("data", (data) => {
+			if (window.log) {
+				console.log(`stderr (audio): ${data}`);
+			}
+		});
 		// }
 		this.ffmpegInstanceAudio.on("close", this.handleAudioClose);
 		this.ffmpegInstanceAudio.stdout.on("data", this.sendAudioStream);
@@ -298,7 +298,7 @@ export class Lagless2Host {
 		} else if (this.os === "linux") {
 			let displayNumber = settings.displayNumber;
 			let screenNumber = settings.screenNumber;
-			if (displayNumber === null || screenNumber === null && require.main !== module) {
+			if (displayNumber === null || (screenNumber === null && require.main !== module)) {
 				let reg = /^:(\d+)\.(\d+)$/;
 				let results = reg.exec(process.env.DISPLAY);
 				displayNumber = results[1];
@@ -314,12 +314,8 @@ export class Lagless2Host {
 			args = [
 				// input:
 				`-f ${videoFormat}`,
-				this.os === "windows" &&
-					!settings.videoDevice &&
-					`-offset_x ${settings.offsetX}`,
-				this.os === "windows" &&
-					!settings.videoDevice &&
-					`-offset_y ${settings.offsetY}`,
+				this.os === "windows" && !settings.videoDevice && `-offset_x ${settings.offsetX}`,
+				this.os === "windows" && !settings.videoDevice && `-offset_y ${settings.offsetY}`,
 				widthHeightArgs,
 				`-framerate ${settings.captureRate}`,
 				!settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
@@ -330,7 +326,10 @@ export class Lagless2Host {
 				// `-vf fps=fps=1/${settings.framerate}`,// disabled for testing
 				// `-vf fps=fps=${settings.framerate}`,// disabled for testing
 				`-r ${settings.framerate}`,
-				`-vf scale=${settings.resolution * (16 / 9)}:${settings.resolution}`,
+				// `-vf scale=${settings.resolution * (16 / 9)}:${settings.resolution}`,
+				`-vf scale=${settings.resolution * (settings.width / settings.height)}:${
+					settings.resolution
+				}`,
 				`-b:v ${settings.videoBitrate}k`,
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
@@ -448,8 +447,6 @@ export class Lagless2Host {
 		this.audioStreamTimer = setTimeout(this.handleAudioClose, 3000);
 		this.videoConnection.emit("videoData", data);
 	};
-
-
 
 	start = () => {
 		this.stopped = false;
