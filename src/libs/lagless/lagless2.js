@@ -80,6 +80,8 @@ export class Lagless2Host {
 			audioBufferSize: args.audioBufferSize || 128,
 			videoBufferSize: args.videoBufferSize || 512,
 			groupOfPictures: args.groupOfPictures || 60,
+			displayNumber: args.displayNumber || null,
+			screenNumber: args.screenNumber || null,
 		};
 
 		this.os = "windows";
@@ -294,8 +296,16 @@ export class Lagless2Host {
 				videoInput = settings.windowTitle ? `title=${settings.windowTitle}` : "desktop";
 			}
 		} else if (this.os === "linux") {
+			let displayNumber = settings.displayNumber;
+			let screenNumber = settings.screenNumber;
+			if (displayNumber === null || screenNumber === null && require.main !== module) {
+				let reg = /^:(\d+)\.(\d+)$/;
+				let results = reg.exec(process.env.DISPLAY);
+				displayNumber = results[1];
+				screenNumber = results[2];
+			}
 			videoFormat = "x11grab";
-			videoInput = `:0.0+${settings.offsetX},${settings.offsetY}`;
+			videoInput = `:${displayNumber}.${screenNumber}+${settings.offsetX},${settings.offsetY}`;
 		}
 
 		let args;
