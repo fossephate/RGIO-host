@@ -282,11 +282,12 @@ class App extends Component {
 			args.audioDevice = args.audioDeviceDropdown;
 		}
 
+		this.videoConnection = socketio(`https://${args.videoIP}`, {
+			path: `/${args.videoPort}/socket.io`,
+			transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
+		});
+
 		if (args.videoType === "webRTC") {
-			this.videoConnection = socketio(`https://${args.videoIP}`, {
-				path: `/${args.videoPort}/socket.io`,
-				transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
-			});
 
 			this.stream = new Lagless4Host(this.videoConnection, args.streamKey);
 
@@ -361,11 +362,6 @@ class App extends Component {
 					});
 			});
 		} else if (args.videoType === "mpeg2") {
-			this.videoConnection = socketio(`https://${args.videoIP}`, {
-				path: `/${args.videoPort}/socket.io`,
-				transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
-			});
-
 			this.stream = new Lagless2Host(
 				args,
 				app.getAppPath(),

@@ -8,7 +8,7 @@ this.hostConnection.on("controllerState", (data) => {
 
 this.hostConnection.on("keyboardState", (data) => {
 	// data.keys will be a list of keys pressed:
-	for (let i = 0; i < data.keys; i++) {
+	for (let i = 0; i < data.keys.length; i++) {
 		data.keys[i] = data.keys[i].replace(/[^0-9a-z]/gi, "");
 	}
 	for (let i = 0; i < data.keys.length; i++) {
