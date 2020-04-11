@@ -124,7 +124,7 @@ export class Lagless2Host {
 		if (this.os === "windows") {
 			this.ffmpegLocation = `${path}/misc/utils/ffmpeg.exe`;
 		} else if (this.os === "linux") {
-			ffmpegLocation = `${path}/misc/utils/ffmpeg`;
+			this.ffmpegLocation = `${path}/misc/utils/ffmpeg`;
 			// this.ffmpegLocation = "ffmpeg";
 		}
 	}
