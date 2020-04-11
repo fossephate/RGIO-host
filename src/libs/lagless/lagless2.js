@@ -297,7 +297,7 @@ export class Lagless2Host {
 				videoInput = settings.windowTitle ? `title=${settings.windowTitle}` : "desktop";
 			}
 		} else if (this.os === "linux") {
-			let dSString = null;
+			let dsString = null;
 			let displayNumber = settings.displayNumber;
 			let screenNumber = settings.screenNumber;
 			if (displayNumber === null || (screenNumber === null && !IS_MODULE)) {
