@@ -297,16 +297,22 @@ export class Lagless2Host {
 				videoInput = settings.windowTitle ? `title=${settings.windowTitle}` : "desktop";
 			}
 		} else if (this.os === "linux") {
+			let dSString = null;
 			let displayNumber = settings.displayNumber;
 			let screenNumber = settings.screenNumber;
 			if (displayNumber === null || (screenNumber === null && !IS_MODULE)) {
-				let reg = /^:(\d+)\.(\d+)$/;
+				let reg = /^:(\d+)(?:\.(\d+))?$/;
 				let results = reg.exec(process.env.DISPLAY);
-				displayNumber = results[1];
-				screenNumber = results[2];
+				if (results[2]) {
+					displayNumber = results[1];
+					screenNumber = results[2];
+					dsString = `:${displayNumber}.${screenNumber}`;
+				} else {
+					dsString = `:${results[1]}`;
+				}
 			}
 			videoFormat = "x11grab";
-			videoInput = `:${displayNumber}.${screenNumber}+${settings.offsetX},${settings.offsetY}`;
+			videoInput = `${dsString}+${settings.offsetX},${settings.offsetY}`;
 		}
 
 		let args;
