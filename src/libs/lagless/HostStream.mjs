@@ -290,6 +290,8 @@ if (args.user) {
 		args.catLocation = "./misc/utils/cat";
 	}
 
+	args.customLocation = "./hostControl/customControl.js";
+
 	args = {
 		
 		accountIP: "remotegames.io",
@@ -353,6 +355,7 @@ if (args.user) {
 					},
 					(data) => {
 						hostStream.startStreaming({ ...args, ...data });
+						hostStream.runCustomControl(args.customLocation);
 					},
 				);
 			},
