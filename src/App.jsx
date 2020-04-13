@@ -1,3 +1,25 @@
+const IS_MODULE = require.main === module;
+let HOST_OS = "windows";
+let platform;
+
+if (IS_MODULE) {
+	platform = process.platform;
+} else {
+	platform = window.process.platform;
+}
+
+switch (platform) {
+	case "win32":
+		HOST_OS = "windows";
+		break;
+	case "linux":
+		HOST_OS = "linux";
+		break;
+	default:
+		HOST_OS = "linux";
+		break;
+}
+
 // react:
 import React, { Component } from "react";
 
@@ -19,9 +41,9 @@ import AccountModal from "shared/components/modals/AccountModal.jsx";
 
 // imports:
 // const { execFile, spawn, exec } = require("child_process");
-const { spawn } = require("child_process");
+// const { spawn } = require("child_process");
+// const { desktopCapturer } = require("electron");
 const app = require("electron").remote.app;
-const { desktopCapturer } = require("electron");
 
 // redux:
 import { connect } from "react-redux";
@@ -33,34 +55,14 @@ import { openAlert } from "shared/features/alert.js";
 
 // libs:
 import { device } from "shared/libs/utils.js";
-import HostControl from "src/../hostControl/HostControl.js";
-import { Lagless2Host } from "src/libs/lagless/lagless2.js";
-import { Lagless4Host } from "src/libs/lagless/lagless4.js";
-import socketio from "socket.io-client";
+// import HostControl from "src/../hostControl/HostControl.js";
+// import { Lagless2Host } from "src/libs/lagless/lagless2.js";
+// import { Lagless4Host } from "src/libs/lagless/lagless4.js";
+// import socketio from "socket.io-client";
 
 // recompose:
 import { compose } from "recompose";
-
-let os = "windows";
-let platform;
-
-if (require.main === module) {
-	platform = process.platform;
-} else {
-	platform = window.process.platform;
-}
-
-switch (platform) {
-	case "win32":
-		os = "windows";
-		break;
-	case "linux":
-		os = "linux";
-		break;
-	default:
-		os = "linux";
-		break;
-}
+import HostStream from "src/libs/lagless/HostStream.js";
 
 // jss:
 const styles = (theme) => ({
@@ -99,14 +101,22 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 
-		this.args = [];
-		this.controllerHostInstance = null;
 		this.hostControl = null;
 
 		this.accountConnection = this.props.accountConnection;
-		this.hostConnection = null;
-		this.videoConnection = null;
-		this.stream = null;
+
+		let args = {};
+		if (HOST_OS === "windows") {
+			args.catLocation = `${app.getAppPath()}/misc/utils/cat.exe`;
+			args.ffmpegLocation = `${app.getAppPath()}/misc/utils/ffmpeg.exe`;
+		} else if (HOST_OS === "linux") {
+			// catLocation = `${app.getAppPath()}/misc/utils/cat`;
+			args.catLocation = "cat";
+			args.ffmpegLocation = `${app.getAppPath()}/misc/utils/ffmpeg`;
+		}
+
+		this.hostStream = new HostStream(args);
+		this.hostStream.connectAccountServer({ connection: this.accountConnection });
 
 		// this.initialValues = {};
 
@@ -148,7 +158,7 @@ class App extends Component {
 	}
 
 	componentDidMount() {
-		this.killProcesses();
+		this.hostStream.killProcesses();
 		if (!this.props.loggedIn) {
 			this.props.history.replace("/login");
 		}
@@ -166,7 +176,7 @@ class App extends Component {
 	}
 
 	componentWillUnmount() {
-		this.killProcesses();
+		this.hostStream.killProcesses();
 	}
 
 	shouldComponentUpdate(nextProps, nextState) {
@@ -191,31 +201,14 @@ class App extends Component {
 		return true;
 	}
 
-	killProcesses = () => {
-		if (this.hostConnection) {
-			this.hostConnection.removeAllListeners();
-			this.hostConnection.destroy();
-			this.hostConnection = null;
-		}
-		if (this.videoConnection) {
-			this.videoConnection.removeAllListeners();
-			this.videoConnection.destroy();
-			this.videoConnection = null;
-		}
-		if (this.stream) {
-			this.stream.destroy();
-			this.stream = null;
-		}
-		if (this.hostControl) {
-			this.hostControl.destroy();
-			this.hostControl = null;
-		}
-	};
-
 	handleStartStreaming = (args) => {
-		// this.args = args;
-		// this.props.socket.emit("stopStreaming", { authToken: this.props.authToken });
-		// console.log(args);
+		if (args.windowTitleDropdown !== 0) {
+			args.windowTitle = args.windowTitleDropdown;
+		}
+		if (args.audioDeviceDropdown !== 0) {
+			args.audioDevice = args.audioDeviceDropdown;
+		}
+
 		this.props.accountConnection.emit(
 			"startStreaming",
 			{
@@ -226,10 +219,21 @@ class App extends Component {
 			},
 			(data) => {
 				if (data.success) {
-					this.killProcesses();
-					this.killProcesses();
+					this.hostStream.killProcesses();
 					setTimeout(() => {
-						this.startStreaming({ ...args, ...data });
+						this.hostStream.startStreaming({ ...args, ...data });
+						this.hostStream.runCustomControl(
+							`${app.getAppPath()}/hostControl/customControl.js`,
+						);
+
+						// // listen to events and dispatch actions:
+						handleStreamEvents(this.hostStream.hostConnection, this.props.store.dispatch);
+						// handle outgoing events & listen to actions:
+						// and maybe dispatch more actions:
+						this.props.sagaMiddleware.run(handleStreamActions, {
+							socket: this.hostStream.hostConnection,
+							dispatch: this.props.store.dispatch,
+						});
 					}, 2000);
 				} else {
 					// alert(data.reason);
@@ -239,171 +243,8 @@ class App extends Component {
 		);
 	};
 
-	startStreaming = (args) => {
-		if (this.hostConnection) {
-			this.hostConnection.removeAllListeners();
-			this.hostConnection.destroy();
-			this.hostConnection = null;
-		}
-		if (this.videoConnection) {
-			this.videoConnection.removeAllListeners();
-			this.videoConnection.destroy();
-			this.videoConnection = null;
-		}
-
-		this.hostConnection = socketio(`https://${args.hostIP}`, {
-			path: `/${args.hostPort}/socket.io`,
-			transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
-		});
-
-		this.hostConnection.on("disconnect", () => {
-			this.handleStopStreaming(true);
-		});
-
-		// // listen to events and dispatch actions:
-		handleStreamEvents(this.hostConnection, this.props.store.dispatch);
-		// handle outgoing events & listen to actions:
-		// and maybe dispatch more actions:
-		this.props.sagaMiddleware.run(handleStreamActions, {
-			socket: this.hostConnection,
-			dispatch: this.props.store.dispatch,
-		});
-
-		// start video host:
-
-		// todo set host2 and port2 based on region and args:
-		args = { ...args, host1: "https://remotegames.io", port1: 8099 };
-		console.log(args);
-
-		if (args.windowTitleDropdown !== 0) {
-			args.windowTitle = args.windowTitleDropdown;
-		}
-		if (args.audioDeviceDropdown !== 0) {
-			args.audioDevice = args.audioDeviceDropdown;
-		}
-
-		this.videoConnection = socketio(`https://${args.videoIP}`, {
-			path: `/${args.videoPort}/socket.io`,
-			transports: ["polling", "websocket", "xhr-polling", "jsonp-polling"],
-		});
-
-		if (args.videoType === "webRTC") {
-
-			this.stream = new Lagless4Host(this.videoConnection, args.streamKey);
-
-			navigator.mediaDevices.enumerateDevices().then((sources) => {
-				console.log(sources);
-
-				let audioConstraint = null;
-				let videoConstraint = null;
-
-				if (!args.audioDevice) {
-					audioConstraint = false;
-				} else if (args.audioDevice === "Desktop Audio") {
-					audioConstraint = {
-						mandatory: {
-							chromeMediaSource: "desktop",
-						},
-					};
-				}
-
-				if (args.capture === "desktop") {
-					videoConstraint = {
-						mandatory: {
-							chromeMediaSource: "desktop",
-							// minWidth: 1280,
-							// maxWidth: 1280,
-							// minHeight: 720,
-							// maxHeight: 720,
-						},
-					};
-				}
-
-				desktopCapturer
-					.getSources({ types: ["window", "screen"] })
-					.then(async (sources) => {
-						if (args.windowTitle) {
-							for (const source of sources) {
-								if (source.name === args.windowTitle) {
-									try {
-										const stream = await navigator.mediaDevices.getUserMedia({
-											audio: audioConstraint,
-											video: { mandatory: { chromeMediaSourceId: source.id } },
-										});
-										this.stream.start(stream);
-									} catch (error) {
-										this.props.openAlert({ title: error });
-									}
-									return;
-								}
-							}
-						} else {
-							for (const source of sources) {
-								if (source.name === "Screen 1") {
-									try {
-										const stream = await navigator.mediaDevices.getUserMedia({
-											audio: audioConstraint,
-											video: {
-												...videoConstraint,
-												mandatory: {
-													chromeMediaSource: "desktop",
-													chromeMediaSourceId: source.id,
-												},
-											},
-										});
-										this.stream.start(stream);
-									} catch (error) {
-										this.props.openAlert({ title: error });
-									}
-									return;
-								}
-							}
-						}
-					});
-			});
-		} else if (args.videoType === "mpeg2") {
-			this.stream = new Lagless2Host(
-				args,
-				app.getAppPath(),
-				this.hostConnection,
-				this.videoConnection,
-			);
-
-			this.stream.setupAuthentication(args.streamKey);
-
-			this.stream.start();
-		}
-
-		// start control host:
-		let catLocation;
-		if (os === "windows") {
-			catLocation = app.getAppPath() + "/misc/utils/cat.exe";
-		} else if (os === "linux") {
-			// catLocation = app.getAppPath() + "\\misc\\utils\\cat";
-			catLocation = "cat";
-		}
-
-		let customScriptLocation = app.getAppPath() + "/hostControl/customControl.js";
-		// read customControl.js file from disk:
-		let catProc = spawn(catLocation, [customScriptLocation]);
-		catProc.stdout.setEncoding("utf8");
-		catProc.stdout.on("data", (data) => {
-			data = data.toString();
-			this.hostControl = new HostControl(this.hostConnection, {
-				streamSettings: args,
-				controllerCount: args.controllerCount,
-				keyboardEnabled: args.keyboardEnabled,
-				mouseEnabled: args.mouseEnabled,
-				controlSwitch: args.controlSwitch,
-			});
-			this.hostControl.setupAuthentication(args.streamKey);
-			this.hostControl.start(data);
-		});
-	};
-
 	handleStopStreaming = (suppressError) => {
-		this.killProcesses();
-		this.killProcesses();
+		this.hostStream.stopStreaming();
 		this.props.accountConnection.emit(
 			"stopStreaming",
 			{ authToken: this.props.authToken },

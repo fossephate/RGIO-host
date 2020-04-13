@@ -2,9 +2,9 @@
 const path = require("path");
 const webpack = require("webpack");
 module.exports = {
-	// import path from "path";
-	// import webpack from "webpack";
-	// export default {
+// import path from "path";
+// import webpack from "webpack";
+// export default {
 	entry: {
 		index: "./src/Index.jsx",
 		// hostControl: "./hostControl/hostControl.js",
@@ -66,8 +66,10 @@ module.exports = {
 							replace: "const binding = require('../build/Release/bindings.node')",
 						},
 						{
-							search: "const PollerBindings = require('bindings')('bindings.node').Poller",
-							replace: "const PollerBindings = require('../build/Release/bindings.node').Poller",
+							search:
+								"const PollerBindings = require('bindings')('bindings.node').Poller",
+							replace:
+								"const PollerBindings = require('../build/Release/bindings.node').Poller",
 						},
 					],
 				},
