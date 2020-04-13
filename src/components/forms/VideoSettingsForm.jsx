@@ -593,9 +593,9 @@ class VideoSettingsForm extends Component {
 				<div style={{ display: "block" }}>
 					<Field name="videoType" component={renderRadioGroup} row>
 						<FormControlLabel
-							value="mpeg2"
+							value="mpeg1"
 							control={<Radio color="primary" />}
-							label="MPEG-2"
+							label="MPEG-1"
 						/>
 						<FormControlLabel
 							value="webRTC"

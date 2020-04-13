@@ -142,7 +142,7 @@ class App extends Component {
 				captureRate: 60,
 				framerate: 30,
 				capture: "window",
-				videoType: "mpeg2",
+				videoType: "mpeg1",
 				offsetX: 0,
 				offsetY: 0,
 				controllerCount: 1,

@@ -198,7 +198,7 @@ export default class HostStream {
 						}
 					});
 			});
-		} else if (args.videoType === "mpeg2") {
+		} else if (args.videoType === "mpeg1") {
 			this.videoStream = new Lagless2Host(args);
 			console.log(this.videoStream);
 
@@ -282,51 +282,56 @@ if (true) {
 	let args = getArgs();
 
 	if (!args.user) {
-		args.ffmpegLocation = `./misc/utils/ffmpeg.exe`;
-		args.catLocation = `./misc/utils/cat.exe`;
-		args.accountIP = "remotegames.io";
-		args.accountPort = 8099;
-		args.user = "fosse5";
-		args.password = "";
-		// return;
+		return;
+		// args.user = "fosse5";
+		// args.password = "";
+	}
+
+	if (HOST_OS === "windows") {
+		args.ffmpegLocation = "./misc/utils/ffmpeg.exe";
+		args.catLocation = "./misc/utils/cat.exe";
+	} else if (HOST_OS === "linux") {
+		args.ffmpegLocation = "./misc/utils/ffmpeg";
+		args.catLocation = "./misc/utils/cat";
 	}
 
 	args = {
-		...args,
-		combineAV: args.combineAV || false,
-		framerate: args.framerate || 30,
-		captureRate: args.captureRate || 60,
-		resolution: args.resolution || 540,
-		videoBitrate: args.videoBitrate || 2000,
-		offsetX: args.offsetX || 0,
-		offsetY: args.offsetY || 0,
-		width: args.width || 1280,
-		height: args.height || 720,
-		windowTitle: args.windowTitle || null,
-		videoDevice: args.videoDevice || null,
-		audioDevice: args.audioDevice || null,
-		audioBitrate: args.audioBitrate || 128,
-		audioRate: args.audioRate || 44100,
-		videoEncoder: args.videoEncoder || "mpeg1video",
-		// videoEncoder: args.videoEncoder || "mpeg2video",
-		drawMouse: args.drawMouse || false,
-		useCustomRecorderPort: args.useCustomRecorderPort || false,
-		audioBufferSize: args.audioBufferSize || 128,
-		videoBufferSize: args.videoBufferSize || 512,
-		groupOfPictures: args.groupOfPictures || 60,
-		displayNumber: args.displayNumber || null,
-		screenNumber: args.screenNumber || null,
-		controllerCount: 0,
+		
+		accountIP: "remotegames.io",
+		accountPort: 8099,
 
-		streamTitle: "",
-		region: "US East",
-		width: 1280,
-		height: 720,
-		capture: "desktop",
-		videoType: "mpeg2",
+
+		combineAV: false,
+		framerate: 30,
+		captureRate: 60,
+		resolution: 540,
+		videoBitrate: 2000,
 		offsetX: 0,
 		offsetY: 0,
-		controllerCount: 1,
+		width: 1280,
+		height: 720,
+		windowTitle: null,
+		videoDevice: null,
+		audioDevice: null,
+		audioBitrate: 128,
+		audioRate: 44100,
+		videoEncoder: "mpeg1video",
+		capture: "desktop",
+		videoType: "mpeg1",
+		drawMouse: false,
+		useCustomRecorderPort: false,
+		audioBufferSize: 128,
+		videoBufferSize: 512,
+		groupOfPictures: 60,
+		displayNumber: null,
+		screenNumber: null,
+		controllerCount: 0,
+
+		streamTitle: "test",
+		region: "US East",
+
+
+		...args,
 	};
 
 	let hostStream = new HostStream();
