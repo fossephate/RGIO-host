@@ -278,14 +278,9 @@ export default class HostStream {
 }
 
 // if (!IS_MODULE) {
-if (true) {
-	let args = getArgs();
 
-	if (!args.user) {
-		return;
-		// args.user = "fosse5";
-		// args.password = "";
-	}
+let args = getArgs();
+if (args.user) {
 
 	if (HOST_OS === "windows") {
 		args.ffmpegLocation = "./misc/utils/ffmpeg.exe";
@@ -308,8 +303,8 @@ if (true) {
 		videoBitrate: 2000,
 		offsetX: 0,
 		offsetY: 0,
-		width: 1280,
-		height: 720,
+		width: 1920,
+		height: 1080,
 		windowTitle: null,
 		videoDevice: null,
 		audioDevice: null,
@@ -325,10 +320,12 @@ if (true) {
 		groupOfPictures: 60,
 		displayNumber: null,
 		screenNumber: null,
-		controllerCount: 0,
-
 		streamTitle: "test",
 		region: "US East",
+
+		controllerCount: 0,
+		keyboardEnabled: true,
+		mouseEnabled: true,
 
 
 		...args,
@@ -361,42 +358,4 @@ if (true) {
 			},
 		);
 	}, 2000);
-
-	// if (
-	// 	(myArgs.accountIP && myArgs.accountPort && myArgs.streamKey) ||
-	// 	((myArgs.hostIP && myArgs.hostPort) || myArgs.videoIP,
-	// 	myArgs.videoPort && myArgs.streamKey)
-	// ) {
-	// } else {
-	// 	console.log(
-	// 		"missing arguments! you need required args: --streamKey and --hostIP, --hostPort, --videoIP, --videoPort, or --accountIP, --accountPort",
-	// 	);
-	// 	console.log(
-	// 		"optional args: width, height, offsetX, offsetY, framerate, \
-	// 		resolution, captureRate, videoBitrate, windowTitle, \
-	// 		audioBitrate, audioRate, videoEncoder, useCustomRecorderPort, \
-	// 		videoDevice, audioDevice, combineAV, drawMouse.",
-	// 	);
-	// 	console.log(myArgs);
-	// }
-
-	// let stream = new Lagless2Host(myArgs);
-
-	// if (myArgs.hostIP) {
-	// 	stream.connectServers({
-	// 		hostIP: myArgs.hostIP,
-	// 		hostPort: myArgs.hostPort,
-	// 		videoIP: myArgs.videoIP,
-	// 		videoPort: myArgs.videoPort,
-	// 		streamKey: myArgs.streamKey,
-	// 	});
-
-	// 	stream.run();
-	// } else {
-	// 	stream.getStreamInfo({
-	// 		accountIP: myArgs.accountIP,
-	// 		accountPort: myArgs.accountPort,
-	// 		streamKey: myArgs.streamKey,
-	// 	});
-	// }
 }
