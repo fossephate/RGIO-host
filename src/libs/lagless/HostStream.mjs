@@ -287,7 +287,7 @@ if (args.user) {
 		args.catLocation = "./misc/utils/cat.exe";
 	} else if (HOST_OS === "linux") {
 		args.ffmpegLocation = "./misc/utils/ffmpeg";
-		args.catLocation = "./misc/utils/cat";
+		args.catLocation = "cat";
 	}
 
 	args.customLocation = "./hostControl/customControl.js";
