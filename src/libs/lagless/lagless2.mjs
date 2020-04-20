@@ -12,30 +12,6 @@ import socketio from "socket.io-client";
 // todo:
 // re-combine with client side lagless2
 
-function getArgs() {
-	let args = {};
-	process.argv.slice(2, process.argv.length).forEach((arg) => {
-		// long arg
-		if (arg.slice(0, 2) === "--") {
-			const longArg = arg.split("=");
-			longArg[1] =
-				longArg[1] === "true" || longArg[1] === "false"
-					? longArg[1] === "true"
-					: longArg[1];
-			longArg[1] = !isNaN(longArg[1]) ? parseInt(longArg[1]) : longArg[1];
-			args[longArg[0].slice(2, longArg[0].length)] = longArg[1];
-		}
-		// flags
-		else if (arg[0] === "-") {
-			const flags = arg.slice(1, arg.length).split("");
-			flags.forEach((flag) => {
-				args[flag] = true;
-			});
-		}
-	});
-	return args;
-}
-
 function convertArgs(list) {
 	let final = [];
 	for (let i = 0; i < list.length; i++) {
@@ -522,48 +498,3 @@ export class Lagless2Host {
 		this.stop();
 	};
 }
-
-// if (!IS_MODULE) {
-// 	let myArgs = getArgs();
-
-// 	if (
-// 		(myArgs.accountIP && myArgs.accountPort && myArgs.streamKey) ||
-// 		((myArgs.hostIP && myArgs.hostPort) || myArgs.videoIP,
-// 		myArgs.videoPort && myArgs.streamKey)
-// 	) {
-// 	} else {
-// 		console.log(
-// 			"missing arguments! you need required args: --streamKey and --hostIP, --hostPort, --videoIP, --videoPort, or --accountIP, --accountPort",
-// 		);
-// 		console.log(
-// 			"optional args: width, height, offsetX, offsetY, framerate, \
-// 			resolution, captureRate, videoBitrate, windowTitle, \
-// 			audioBitrate, audioRate, videoEncoder, useCustomRecorderPort, \
-// 			videoDevice, audioDevice, combineAV, drawMouse.",
-// 		);
-// 		console.log(myArgs);
-// 		return;
-// 	}
-
-// 	let stream = new Lagless2Host(myArgs);
-
-// 	if (myArgs.hostIP) {
-// 		stream.connectServers({
-// 			hostIP: myArgs.hostIP,
-// 			hostPort: myArgs.hostPort,
-// 			videoIP: myArgs.videoIP,
-// 			videoPort: myArgs.videoPort,
-// 			streamKey: myArgs.streamKey,
-// 		});
-
-// 		stream.run();
-// 	} else {
-// 		stream.getStreamInfo({
-// 			accountIP: myArgs.accountIP,
-// 			accountPort: myArgs.accountPort,
-// 			streamKey: myArgs.streamKey,
-// 		});
-// 	}
-// } else {
-// 	console.log("required as a module");
-// }
