@@ -330,6 +330,7 @@ if (args.user) {
 		streamTitle: "test",
 		region: "US East",
 
+		playerCount: 1,
 		controllerCount: 0,
 		keyboardEnabled: true,
 		mouseEnabled: true,
