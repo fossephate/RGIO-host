@@ -52,10 +52,9 @@ export default class HostControl {
 		
 			if (this.options.controlSwitch) {
 				this.controllerManager = new SwitchControllerManager(this.options.controllerCount);
-			} else {
+			} else if (this.options.virtualXboxControllers) {
 				this.controllerManager = new XboxControllerManager(this.options.controllerCount);
 			}
-
 		
 			this.controllerManager.init();
 		}

@@ -146,6 +146,8 @@ class App extends Component {
 				offsetX: 0,
 				offsetY: 0,
 				controllerCount: 1,
+				controlSwitch: false,
+				virtualXboxControllers: true,
 			},
 		};
 

@@ -58,6 +58,7 @@ function getArgs() {
 				longArg[1] === "true" || longArg[1] === "false"
 					? longArg[1] === "true"
 					: longArg[1];
+			longArg[1] = !isNaN(longArg[1]) ? parseInt(longArg[1]) : longArg[1];
 			args[longArg[0].slice(2, longArg[0].length)] = longArg[1];
 		}
 		// flags
@@ -235,6 +236,7 @@ export default class HostStream {
 				keyboardEnabled: this.args.keyboardEnabled,
 				mouseEnabled: this.args.mouseEnabled,
 				controlSwitch: this.args.controlSwitch,
+				virtualXboxControllers: this.args.virtualXboxControllers,
 			});
 			this.hostControl.setupAuthentication(this.args.streamKey);
 			this.hostControl.start(data);

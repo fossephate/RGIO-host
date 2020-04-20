@@ -17,9 +17,10 @@ function getArgs() {
 		if (arg.slice(0, 2) === "--") {
 			const longArg = arg.split("=");
 			longArg[1] =
-			longArg[1] === "true" || longArg[1] === "false"
-				? longArg[1] === "true"
-				: longArg[1];
+				longArg[1] === "true" || longArg[1] === "false"
+					? longArg[1] === "true"
+					: longArg[1];
+			longArg[1] = !isNaN(longArg[1]) ? parseInt(longArg[1]) : longArg[1];
 			args[longArg[0].slice(2, longArg[0].length)] = longArg[1];
 		}
 		// flags

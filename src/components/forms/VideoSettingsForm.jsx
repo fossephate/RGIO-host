@@ -148,9 +148,7 @@ const renderSelectField = ({
 			input={
 				variant === "outlined" ? (
 					<OutlinedInput id={label + "Select"} labelWidth={labelWidth} />
-				) : (
-					undefined
-				)
+				) : undefined
 			}
 		>
 			{children}
@@ -248,7 +246,7 @@ class VideoSettingsForm extends Component {
 			});
 		} else if (window.process.platform === "linux") {
 		}
-	}
+	};
 
 	componentDidMount() {
 		this.getWindowTitles();
@@ -268,7 +266,7 @@ class VideoSettingsForm extends Component {
 
 	agreeTOS = (event) => {
 		this.setState({ TOSAgreed: event.target.checked });
-	}
+	};
 
 	handleInstallDrivers = () => {
 		if (window.process.platform === "win32") {
@@ -283,7 +281,7 @@ class VideoSettingsForm extends Component {
 				this.setState({});
 			});
 		}
-	}
+	};
 
 	// getRegions() {
 	// 	let regions = ["US East"];
@@ -308,7 +306,7 @@ class VideoSettingsForm extends Component {
 			}
 			this.windowTitles = windowTitles;
 		});
-	}
+	};
 
 	getDshowDevices = () => {
 		let ffmpegLocation = app.getAppPath() + "\\utils\\ffmpeg.exe";
@@ -328,7 +326,7 @@ class VideoSettingsForm extends Component {
 				this.dshowDevices = dshowDevices;
 			},
 		);
-	}
+	};
 
 	getWindowTitleMenuItems = () => {
 		let menuItems = [];
@@ -345,7 +343,7 @@ class VideoSettingsForm extends Component {
 			);
 		}
 		return menuItems;
-	}
+	};
 
 	getDshowDeviceMenuItems = () => {
 		let menuItems = [];
@@ -362,7 +360,7 @@ class VideoSettingsForm extends Component {
 			);
 		}
 		return menuItems;
-	}
+	};
 
 	getAudioDeviceNames = () => {
 		let audioDeviceNames = [];
@@ -402,7 +400,7 @@ class VideoSettingsForm extends Component {
 			this.audioDeviceNames = audioDeviceNames;
 			this.setState({});
 		});
-	}
+	};
 
 	getAudioDeviceMenuItems() {
 		let menuItems = [];
@@ -583,11 +581,8 @@ class VideoSettingsForm extends Component {
 				</div>
 
 				<div style={{ display: "block" }}>
-					<Field
-						name="controlSwitch"
-						component={renderCheckbox}
-						label="Control Switch"
-					/>
+					<Field name="virtualXboxControllers" component={renderCheckbox} label="Virtual Xbox Controllers" />
+					<Field name="controlSwitch" component={renderCheckbox} label="Control Switch" />
 				</div>
 
 				<div style={{ display: "block" }}>
