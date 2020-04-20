@@ -2,7 +2,9 @@
 // const http = require("http");
 // const socketio = require("socket.io-client");
 
-import { spawn } from "child_process";
+// import { spawn } from "child_process";
+import child_process from "child_process";
+const spawn = child_process.spawn;
 import http from "http";
 import socketio from "socket.io-client";
 // const IS_MODULE = require.main === module;

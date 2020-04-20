@@ -62,7 +62,7 @@ import { device } from "shared/libs/utils.js";
 
 // recompose:
 import { compose } from "recompose";
-import HostStream from "src/libs/lagless/HostStream.js";
+import HostStream from "src/libs/lagless/HostStream.mjs";
 
 // jss:
 const styles = (theme) => ({

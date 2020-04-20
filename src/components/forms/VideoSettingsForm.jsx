@@ -580,7 +580,7 @@ class VideoSettingsForm extends Component {
 					/>
 				</div>
 
-				<div style={{ display: "block" }}>
+				<div style={{ display: "flex" }}>
 					<Field name="virtualXboxControllers" component={renderCheckbox} label="Virtual Xbox Controllers" />
 					<Field name="controlSwitch" component={renderCheckbox} label="Control Switch" />
 				</div>

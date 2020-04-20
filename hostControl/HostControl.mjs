@@ -55,8 +55,10 @@ export default class HostControl {
 			} else if (this.options.virtualXboxControllers) {
 				this.controllerManager = new XboxControllerManager(this.options.controllerCount);
 			}
-		
-			this.controllerManager.init();
+			
+			if (this.options.controlSwitch || this.options.virtualXboxControllers) {
+				this.controllerManager.init();
+			}
 		}
 
 		if (this.options.keyboardEnabled || this.options.mouseEnabled) {

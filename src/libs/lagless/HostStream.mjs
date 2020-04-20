@@ -26,7 +26,9 @@ import socketio from "socket.io-client";
 import HostControl from "../../../hostControl/HostControl.mjs";
 import { Lagless2Host } from "./lagless2.mjs";
 import { Lagless4Host } from "./lagless4.mjs";
-import { spawn } from "child_process";
+// import { spawn } from "child_process";
+import child_process from "child_process";
+const spawn = child_process.spawn;
 import desktopCapturer from "electron";
 
 // import socketio from "socket.io-client";
