@@ -334,9 +334,19 @@ if (args.user) {
 		controllerCount: 0,
 		keyboardEnabled: true,
 		mouseEnabled: true,
+		controlSwitch: false,
+		virtualXboxControllers: false,
 
 		...args,
 	};
+
+	if (args.controlSwitch && args.virtualXboxControllers) {
+		args.controlSwitch = false;
+	}
+
+	if (args.controllerCount > args.playerCount) {
+		args.playerCount = args.controllerCount;
+	}
 
 	let hostStream = new HostStream();
 	hostStream.connectAccountServer({ ip: args.accountIP, port: args.accountPort });

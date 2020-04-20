@@ -354,45 +354,61 @@ export class Lagless2Host {
 				"-",
 			];
 		} else {
+
+			// copied from getAudioArgs:
+			let audioInput;
+			let audioFormat;
+			if (this.os === "windows") {
+				audioFormat = "dshow";
+				audioInput = `audio=${settings.audioDevice}`;
+			} else if (this.os === "linux") {
+				audioFormat = "alsa";
+				audioInput = `hw:${settings.audioDevice}`;
+			}
+			
 			// audio and video combined:
-			// args = [
-			// 	// video:
-			// 	"-f gdigrab",
-			// 	`-offset_x ${settings.offsetX}`,
-			// 	`-offset_y ${settings.offsetY}`,
-			// 	`-video_size ${settings.width}x${settings.height}`,
-			// 	// `-r ${settings.captureRate}`,
-			// 	`-framerate ${settings.captureRate}`,
-			// 	"-draw_mouse 0",
-			// 	`-i title=${settings.windowTitle}`,
-			// 	// "-show_region 1",
-			// 	// audio:
-			// 	"-f dshow",
-			// 	"-ar 44100", // 44100
-			// 	"-ac 1", // new
-			// 	"-audio_buffer_size 0",// new
-			// 	`-i audio=${settings.audioDevice}`,
-			// 	// output settings:
-			// 	"-f mpegts",
-			// 	// audio:
-			// 	"-c:a mp2",
-			// 	`-b:a ${settings.audioBitrate}}k`,
-			// 	// "-tune zerolatency",// new// might be x264 only
-			// 	"-async 1",// audio sync method// new
-			//	`-audio_buffer_size ${settings.audioBufferSize}`,
-			//	`-bufsize ${settings.audioBufferSize}`,
-			// 	`-muxdelay ${settings.muxDelay}`,
-			// 	// video:
-			// 	// "-vf", "fps=fps=1/" + settings.framerate,// disabled for testing
-			// 	"-vf", `scale=${(settings.resolution * (16 / 9))}:${settings.resolution}`,
-			// 	"-b:v", `${settings.videoBitrate}k`,
-			// 	"-bf", 0, // new
-			// 	"-me_method", "zero", // epzs / zero// new
-			// 	`-g ${settings.groupOfPictures}`, // group of pictures (gop)
-			//	`-video_buffer_size ${settings.videoBufferSize}`,
-			// 	`-c:v ${settings.videoEncoder}`, // mpeg1video
-			// 	"-",
-			// ];
+			args = [
+				// video:
+				`-f ${videoFormat}`,
+				this.os === "windows" && !settings.videoDevice && `-offset_x ${settings.offsetX}`,
+				this.os === "windows" && !settings.videoDevice && `-offset_y ${settings.offsetY}`,
+				widthHeightArgs,
+				`-framerate ${settings.captureRate}`,
+				!settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
+				`-i title=${videoInput}`,
+				
+				// audio:
+				`-f ${audioFormat}`,
+				`-i ${audioInput}`,
+
+				// output settings:
+				"-f mpegts",
+				// audio:
+				`-ar ${settings.audioRate}`, // 44100
+				"-ac 1", // new
+				// this.os === "windows" && `-audio_buffer_size ${settings.audioBufferSize}k`, // new
+				// `-audio_buffer_size ${settings.audioBufferSize}k`,
+				// `-bufsize ${settings.audioBufferSize}k`,
+				"-c:a mp2",
+				`-b:a ${settings.audioBitrate}k`,
+				"-async 1", // audio sync method// new
+				`-muxdelay ${settings.muxDelay}`,
+
+				// video:
+				`-r ${settings.framerate}`,
+				`-vf scale=${settings.resolution * (settings.width / settings.height)}:${
+					settings.resolution
+				}`,
+				`-b:v ${settings.videoBitrate}k`,
+				`-maxrate ${settings.videoBitrate}k`,
+				"-bf 0", // new
+				"-me_method zero", // epzs / zero// new
+				`-g ${settings.groupOfPictures}`, // group of pictures (gop)
+				// `-video_buffer_size ${settings.videoBufferSize}`,
+				`-bufsize ${settings.videoBufferSize}`,
+				`-c:v ${settings.videoEncoder}`, // mpeg1video
+				"-",
+			];
 		}
 
 		return convertArgs(args);
@@ -466,7 +482,7 @@ export class Lagless2Host {
 		clearTimeout(this.videoStreamTimer);
 		clearTimeout(this.audioStreamTimer);
 		console.log("ffmpeg " + this.getVideoArgs(this.settings).join(" "));
-		if (this.settings.audioDevice) {
+		if (this.settings.audioDevice && !this.settings.combineAV) {
 			console.log("ffmpeg " + this.getAudioArgs(this.settings).join(" "));
 		}
 
@@ -474,7 +490,7 @@ export class Lagless2Host {
 			this.createHTTPServer(this.settings.useCustomRecorderPort);
 		} else {
 			this.createVideoStream(this.settings);
-			if (this.settings.audioDevice) {
+			if (this.settings.audioDevice && !this.settings.combineAV) {
 				this.createAudioStream(this.settings);
 			}
 		}
