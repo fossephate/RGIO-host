@@ -4,5 +4,6 @@
 # /headless/.nvm/versions/node/v12.16.1/bin/node
 node --experimental-modules ./src/libs/lagless/HostStream.mjs --user="fosse5" --password="QWERTY1234"
 
+# sudo docker build -t box .
 # sudo docker run -i -p 5901:5901 --memory 1024m --rm --name test --security-opt seccomp=$(pwd)/chrome.json -t box /bin/bash
 # sudo docker exec -it --user root test bash

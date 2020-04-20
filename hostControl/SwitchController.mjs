@@ -9,7 +9,7 @@
 
 // let now = require("performance-now");
 // const SerialPort = require("serialport");
-import now from "performance-now";
+// import now from "performance-now";
 import SerialPort from "serialport";
 
 const STATE_OUT_OF_SYNC = 0;
@@ -323,18 +323,18 @@ export default class SwitchController {
 	};
 
 	// Precision wait
-	p_wait = (waitTime) => {
-		// let t0 = time.perf_counter();
-		// let t1 = t0;
-		// while (t1 - t0 < waitTime) {
-		// 	t1 = time.perf_counter();
-		// }
-		let t0 = now();
-		let t1 = t0;
-		while ((t1 - t0) * 1000 < waitTime) {
-			t1 = now();
-		}
-	}
+	// p_wait = (waitTime) => {
+	// 	// let t0 = time.perf_counter();
+	// 	// let t1 = t0;
+	// 	// while (t1 - t0 < waitTime) {
+	// 	// 	t1 = time.perf_counter();
+	// 	// }
+	// 	let t0 = now();
+	// 	let t1 = t0;
+	// 	while ((t1 - t0) * 1000 < waitTime) {
+	// 		t1 = now();
+	// 	}
+	// }
 
 	// Compute CRC8
 	// https://www.microchip.com/webdoc/AVRLibcReferenceManual/group__util__crc_1gab27eaaef6d7fd096bd7d57bf3f9ba083.html
@@ -472,131 +472,131 @@ export default class SwitchController {
 	}
 
 	//Test all buttons except for home and capture
-	testbench_btn = () => {
-		this.send_cmd(BTN_A);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(BTN_B);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(BTN_X);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(BTN_Y);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(BTN_PLUS);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(BTN_MINUS);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(BTN_LCLICK);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(BTN_RCLICK);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-	};
+	// testbench_btn = () => {
+	// 	this.send_cmd(BTN_A);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(BTN_B);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(BTN_X);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(BTN_Y);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(BTN_PLUS);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(BTN_MINUS);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(BTN_LCLICK);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(BTN_RCLICK);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// };
 
 	// Test DPAD U / R / D / L
-	testbench_dpad = () => {
-		this.send_cmd(DPAD_U);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(DPAD_R);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(DPAD_D);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(DPAD_L);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-	};
-	// Test DPAD Diagonals - Does not register on switch due to dpad buttons
-	testbench_dpad_diag = () => {
-		this.send_cmd(DPAD_U_R);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(DPAD_D_R);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(DPAD_D_L);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-		this.send_cmd(DPAD_U_L);
-		this.p_wait(0.5);
-		this.send_cmd();
-		this.p_wait(0.001);
-	};
+	// testbench_dpad = () => {
+	// 	this.send_cmd(DPAD_U);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(DPAD_R);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(DPAD_D);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(DPAD_L);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// };
+	// // Test DPAD Diagonals - Does not register on switch due to dpad buttons
+	// testbench_dpad_diag = () => {
+	// 	this.send_cmd(DPAD_U_R);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(DPAD_D_R);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(DPAD_D_L);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// 	this.send_cmd(DPAD_U_L);
+	// 	this.p_wait(0.5);
+	// 	this.send_cmd();
+	// 	this.p_wait(0.001);
+	// };
 
-	testbench = () => {
-		this.testbench_btn();
-		this.testbench_dpad();
-		this.testbench_lstick();
-		this.testbench_rstick();
-		this.testbench_packet_speed();
-		return;
-	}
+	// testbench = () => {
+	// 	this.testbench_btn();
+	// 	this.testbench_dpad();
+	// 	this.testbench_lstick();
+	// 	this.testbench_rstick();
+	// 	this.testbench_packet_speed();
+	// 	return;
+	// }
 
-	writeAndDrain = (data, cb) => {
-		// this.ser.write(data, (error, bytesWritten) => {
-		// 	console.log("eb", error, bytesWritten);
-		// 	this.ser.drain(cb);
-		// });
-		this.ser.write(data);
-		this.ser.drain(cb);
-		// cb();
-	};
+	// writeAndDrain = (data, cb) => {
+	// 	// this.ser.write(data, (error, bytesWritten) => {
+	// 	// 	console.log("eb", error, bytesWritten);
+	// 	// 	this.ser.drain(cb);
+	// 	// });
+	// 	this.ser.write(data);
+	// 	this.ser.drain(cb);
+	// 	// cb();
+	// };
 
-	waitForData = (timeToWait, cb) => {
-		let t = now();
-		let timer = setInterval(() => {
-			let byte = this.ser.read(1);
-			if (byte === null) {
-				let tWaiting = now() - t;
-				if (tWaiting > timeToWait) {
-					clearInterval(timer);
-					cb(null);
-				}
-			} else {
-				// console.log(typeof byte);
-				// console.log(Object.keys(byte));
-				// console.log(byte);
-				// console.log(byte[0]);
-				clearInterval(timer);
-				cb(byte);
-			}
-		}, 1);
-	};
+	// waitForData = (timeToWait, cb) => {
+	// 	let t = now();
+	// 	let timer = setInterval(() => {
+	// 		let byte = this.ser.read(1);
+	// 		if (byte === null) {
+	// 			let tWaiting = now() - t;
+	// 			if (tWaiting > timeToWait) {
+	// 				clearInterval(timer);
+	// 				cb(null);
+	// 			}
+	// 		} else {
+	// 			// console.log(typeof byte);
+	// 			// console.log(Object.keys(byte));
+	// 			// console.log(byte);
+	// 			// console.log(byte[0]);
+	// 			clearInterval(timer);
+	// 			cb(byte);
+	// 		}
+	// 	}, 1);
+	// };
 
-	writeDrainWait = (data, timeToWait, cb) => {
-		this.writeAndDrain(data, () => {
-			this.waitForData(timeToWait, cb);
-		});
-	};
+	// writeDrainWait = (data, timeToWait, cb) => {
+	// 	this.writeAndDrain(data, () => {
+	// 		this.waitForData(timeToWait, cb);
+	// 	});
+	// };
 
-	flushWait = (timeToWait, cb) => {
-		this.ser.flush(() => {
-			this.waitForData(timeToWait, cb);
-		});
-	};
+	// flushWait = (timeToWait, cb) => {
+	// 	this.ser.flush(() => {
+	// 		this.waitForData(timeToWait, cb);
+	// 	});
+	// };
 
 	handleData = (buffer) => {
 		if (buffer && buffer[0] != 0x90) {

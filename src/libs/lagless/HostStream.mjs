@@ -54,6 +54,10 @@ function getArgs() {
 		// long arg
 		if (arg.slice(0, 2) === "--") {
 			const longArg = arg.split("=");
+			longArg[1] =
+				longArg[1] === "true" || longArg[1] === "false"
+					? longArg[1] === "true"
+					: longArg[1];
 			args[longArg[0].slice(2, longArg[0].length)] = longArg[1];
 		}
 		// flags
@@ -281,7 +285,6 @@ export default class HostStream {
 
 let args = getArgs();
 if (args.user) {
-
 	if (HOST_OS === "windows") {
 		args.ffmpegLocation = "./misc/utils/ffmpeg.exe";
 		args.catLocation = "./misc/utils/cat.exe";
@@ -293,10 +296,8 @@ if (args.user) {
 	args.customLocation = "./hostControl/customControl.js";
 
 	args = {
-		
 		accountIP: "remotegames.io",
 		accountPort: 8099,
-
 
 		combineAV: false,
 		framerate: 30,
@@ -328,7 +329,6 @@ if (args.user) {
 		controllerCount: 0,
 		keyboardEnabled: true,
 		mouseEnabled: true,
-
 
 		...args,
 	};

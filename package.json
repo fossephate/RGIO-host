@@ -22,14 +22,11 @@
 	"author": "Matthew Fosse <fossephate@gmail.com>",
 	"license": "UNLICENSED",
 	"dependencies": {
-		"@reduxjs/toolkit": "^1.3.4",
-		"electron-updater": "^4.2.5",
-		"js-cookie": "^2.2.1",
-		"native-addon-loader": "^2.0.1",
-		"query-string": "^6.12.0",
-		"react-google-recaptcha": "^2.0.1",
+		"electron": "^8.2.0",
 		"robotjs": "git+https://github.com/fossephate/robotjs.git",
-		"serialport": "^8.0.7"
+		"serialport": "^8.0.7",
+		"simple-peer": "^9.6.2",
+		"socket.io": "^2.3.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.9.0",
@@ -43,6 +40,7 @@
 		"@material-ui/core": "^4.9.9",
 		"@material-ui/icons": "^4.9.1",
 		"@material-ui/styles": "^4.9.6",
+		"@reduxjs/toolkit": "^1.3.4",
 		"@webscopeio/react-textarea-autocomplete": "^4.6.3",
 		"acorn": "^7.1.1",
 		"babel-loader": "^8.1.0",
@@ -53,7 +51,6 @@
 		"classnames": "^2.2.6",
 		"css-loader": "^3.4.2",
 		"deepmerge": "^4.2.2",
-		"electron": "^8.2.0",
 		"electron-builder": "^22.4.1",
 		"electron-log": "^4.1.1",
 		"electron-rebuild": "^1.10.1",
@@ -91,13 +88,16 @@
 		"redux": "^4.0.5",
 		"redux-form": "^8.3.2",
 		"redux-saga": "^1.1.3",
-		"simple-peer": "^9.6.2",
-		"socket.io": "^2.3.0",
 		"string-replace-loader": "^2.2.0",
 		"style-loader": "^1.1.3",
 		"webpack": "^4.42.1",
 		"webpack-cli": "^3.3.11",
-		"webpack-merge": "^4.2.2"
+		"webpack-merge": "^4.2.2",
+		"electron-updater": "^4.2.5",
+		"js-cookie": "^2.2.1",
+		"native-addon-loader": "^2.0.1",
+		"query-string": "^6.12.0",
+		"react-google-recaptcha": "^2.0.1"
 	},
 	"bugs": {
 		"url": "https://github.com/fossephate/rgio-host/issues"
