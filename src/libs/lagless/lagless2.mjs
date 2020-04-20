@@ -69,32 +69,32 @@ export class Lagless2Host {
 		this.stopped = false;
 
 		this.settings = {
-			...args,
 			debug: false,
-			combineAV: args.combineAV || false,
-			framerate: args.framerate || 30,
-			captureRate: args.captureRate || 60,
-			resolution: args.resolution || 540,
-			videoBitrate: args.videoBitrate || 2000,
-			offsetX: args.offsetX || 0,
-			offsetY: args.offsetY || 0,
-			width: args.width || 1280,
-			height: args.height || 720,
-			windowTitle: args.windowTitle || null,
-			videoDevice: args.videoDevice || null,
-			audioDevice: args.audioDevice || null,
-			audioBitrate: args.audioBitrate || 128,
-			audioRate: args.audioRate || 44100,
-			muxDelay: args.muxDelay || 0.001,
-			videoEncoder: args.videoEncoder || "mpeg1video",
+			combineAV: false,
+			framerate: 30,
+			captureRate: 60,
+			resolution: 540,
+			videoBitrate: 2000,
+			offsetX: 0,
+			offsetY: 0,
+			width: 1280,
+			height: 720,
+			windowTitle: null,
+			videoDevice: null,
+			audioDevice: null,
+			audioBitrate: 128,
+			audioRate: 44100,
+			muxDelay: 0.001,
+			videoEncoder: "mpeg1video",
 			// videoEncoder: args.videoEncoder || "mpeg2video",
-			drawMouse: args.drawMouse || false,
-			useCustomRecorderPort: args.useCustomRecorderPort || false,
-			audioBufferSize: args.audioBufferSize || 128,
-			videoBufferSize: args.videoBufferSize || 512,
-			groupOfPictures: args.groupOfPictures || 60,
-			displayNumber: args.displayNumber || null,
-			screenNumber: args.screenNumber || null,
+			drawMouse: false,
+			useCustomRecorderPort: false,
+			audioBufferSize: 128,
+			videoBufferSize: 512,
+			groupOfPictures: 60,
+			displayNumber: null,
+			screenNumber: null,
+			...args,
 		};
 
 		this.os = args.os;
@@ -354,7 +354,6 @@ export class Lagless2Host {
 				"-",
 			];
 		} else {
-
 			// copied from getAudioArgs:
 			let audioInput;
 			let audioFormat;
@@ -365,7 +364,7 @@ export class Lagless2Host {
 				audioFormat = "alsa";
 				audioInput = `hw:${settings.audioDevice}`;
 			}
-			
+
 			// audio and video combined:
 			args = [
 				// video:
@@ -376,7 +375,7 @@ export class Lagless2Host {
 				`-framerate ${settings.captureRate}`,
 				!settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
 				`-i title=${videoInput}`,
-				
+
 				// audio:
 				`-f ${audioFormat}`,
 				`-i ${audioInput}`,
@@ -481,6 +480,7 @@ export class Lagless2Host {
 		this.stopped = false;
 		clearTimeout(this.videoStreamTimer);
 		clearTimeout(this.audioStreamTimer);
+		console.log(this.settings);
 		console.log("ffmpeg " + this.getVideoArgs(this.settings).join(" "));
 		if (this.settings.audioDevice && !this.settings.combineAV) {
 			console.log("ffmpeg " + this.getAudioArgs(this.settings).join(" "));
