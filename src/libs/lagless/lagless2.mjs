@@ -91,7 +91,6 @@ export class Lagless2Host {
 		// }
 
 		this.ffmpegLocation = args.ffmpegLocation;
-		console.log(this.ffmpegLocation);
 		// if (this.os === "windows") {
 		// 	this.ffmpegLocation = `${path}/misc/utils/ffmpeg.exe`;
 		// } else if (this.os === "linux") {
@@ -242,7 +241,7 @@ export class Lagless2Host {
 		// 	console.log(`stdout: ${data}`);
 		// });
 		this.ffmpegInstanceAudio.stderr.on("data", (data) => {
-			if (window.log) {
+			if (/*window.log*/false) {
 				console.log(`stderr (audio): ${data}`);
 			}
 		});

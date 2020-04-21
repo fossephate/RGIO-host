@@ -293,7 +293,11 @@ if (args.user) {
 		args.ffmpegLocation = "./misc/utils/ffmpeg.exe";
 		args.catLocation = "./misc/utils/cat.exe";
 	} else if (HOST_OS === "linux") {
-		args.ffmpegLocation = "./misc/utils/ffmpeg";
+		if (args.useLocalFfmpeg) {
+			args.ffmpegLocation = "ffmpeg";
+		} else {
+			args.ffmpegLocation = "./misc/utils/ffmpeg";
+		}
 		args.catLocation = "cat";
 	}
 
