@@ -63,6 +63,7 @@ export class Lagless2Host {
 			muxDelay: 0.001,
 			videoEncoder: "mpeg1video",
 			// videoEncoder: args.videoEncoder || "mpeg2video",
+			usePulse: false,
 			drawMouse: false,
 			useCustomRecorderPort: false,
 			audioBufferSize: 128,
@@ -263,6 +264,8 @@ export class Lagless2Host {
 	// and finally by tuning the client that receives the stream to not "cache" any incoming data, which, if it does, increases latency.
 	// audio_buffer_size
 
+	// https://stackoverflow.com/questions/43312975/record-sound-on-ubuntu-docker-image
+
 	getVideoArgs = (settings) => {
 		let widthHeightArgs = !settings.windowTitle
 			? `-video_size ${settings.width}x${settings.height}`
@@ -337,8 +340,13 @@ export class Lagless2Host {
 				audioFormat = "dshow";
 				audioInput = `audio=${settings.audioDevice}`;
 			} else if (this.os === "linux") {
-				audioFormat = "alsa";
-				audioInput = `hw:${settings.audioDevice}`;
+				if (settings.usePulse) {
+					audioFormat = "pulse"
+					audioInput = `${settings.audioDevice}`;
+				} else {
+					audioFormat = "alsa";
+					audioInput = `hw:${settings.audioDevice}`;
+				}
 			}
 
 			// audio and video combined:
@@ -396,8 +404,13 @@ export class Lagless2Host {
 			audioFormat = "dshow";
 			audioInput = `audio=${settings.audioDevice}`;
 		} else if (this.os === "linux") {
-			audioFormat = "alsa";
-			audioInput = `hw:${settings.audioDevice}`;
+			if (settings.usePulse) {
+				audioFormat = "pulse"
+				audioInput = `${settings.audioDevice}`;
+			} else {
+				audioFormat = "alsa";
+				audioInput = `hw:${settings.audioDevice}`;
+			}
 		}
 
 		// audio:
