@@ -456,7 +456,6 @@ export class Lagless2Host {
 		this.stopped = false;
 		clearTimeout(this.videoStreamTimer);
 		clearTimeout(this.audioStreamTimer);
-		console.log(this.settings);
 		console.log("ffmpeg " + this.getVideoArgs(this.settings).join(" "));
 		if (this.settings.audioDevice && !this.settings.combineAV) {
 			console.log("ffmpeg " + this.getAudioArgs(this.settings).join(" "));
