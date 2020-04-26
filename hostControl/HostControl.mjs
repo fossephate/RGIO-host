@@ -1,7 +1,11 @@
 import socketio from "socket.io-client";
 import { XboxControllerManager, SwitchControllerManager/*, KeyboardMouseManager*/ } from "./ControlManagers.mjs";
 import robot from "robotjs";
-// window.robot = robot;
+try {
+	window.robot = robot;
+} catch (error) {
+	console.log(error);
+}
 
 export default class HostControl {
 	constructor(hostConnection, options) {

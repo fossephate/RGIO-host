@@ -106,6 +106,8 @@ export class Lagless2Host {
 				path: `/${options.hostPort}/socket.io`,
 				reconnect: true,
 			});
+		} else if (options.hostConnection) {
+			this.hostConnection = options.hostConnection;
 		}
 
 		if (options.videoIP && options.videoPort) {
@@ -113,20 +115,15 @@ export class Lagless2Host {
 				path: `/${options.videoPort}/socket.io`,
 				reconnect: true,
 			});
-		}
-
-		if (options.hostConnection) {
-			this.hostConnection = options.hostConnection;
-		}
-		if (options.videoConnection) {
+		} else if (options.videoConnection) {
 			this.videoConnection = options.videoConnection;
 		}
 
-		console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-		console.log(
-			`${options.hostIP}:${options.hostPort} ${options.videoIP}:${options.videoPort}`,
-		);
-		console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		// console.log(
+		// 	`${options.hostIP}:${options.hostPort} ${options.videoIP}:${options.videoPort}`,
+		// );
+		// console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
 		this.setupAuthentication(options.streamKey);
 	};
@@ -242,7 +239,7 @@ export class Lagless2Host {
 		// 	console.log(`stdout: ${data}`);
 		// });
 		this.ffmpegInstanceAudio.stderr.on("data", (data) => {
-			if (/*window.log*/false) {
+			if (/*window.log*/ false) {
 				console.log(`stderr (audio): ${data}`);
 			}
 		});
@@ -265,6 +262,7 @@ export class Lagless2Host {
 	// audio_buffer_size
 
 	// https://stackoverflow.com/questions/43312975/record-sound-on-ubuntu-docker-image
+	// https://github.com/jessfraz/dockerfiles/issues/38
 
 	getVideoArgs = (settings) => {
 		let widthHeightArgs = !settings.windowTitle
@@ -341,7 +339,7 @@ export class Lagless2Host {
 				audioInput = `audio=${settings.audioDevice}`;
 			} else if (this.os === "linux") {
 				if (settings.usePulse) {
-					audioFormat = "pulse"
+					audioFormat = "pulse";
 					audioInput = `${settings.audioDevice}`;
 				} else {
 					audioFormat = "alsa";
@@ -405,7 +403,7 @@ export class Lagless2Host {
 			audioInput = `audio=${settings.audioDevice}`;
 		} else if (this.os === "linux") {
 			if (settings.usePulse) {
-				audioFormat = "pulse"
+				audioFormat = "pulse";
 				audioInput = `${settings.audioDevice}`;
 			} else {
 				audioFormat = "alsa";
