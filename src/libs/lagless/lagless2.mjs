@@ -8,6 +8,7 @@ const spawn = child_process.spawn;
 import http from "http";
 import socketio from "socket.io-client";
 // const IS_MODULE = require.main === module;
+const IS_MODULE = true;
 
 // todo:
 // re-combine with client side lagless2
@@ -283,7 +284,9 @@ export class Lagless2Host {
 			let dsString = null;
 			let displayNumber = settings.displayNumber;
 			let screenNumber = settings.screenNumber;
-			if (displayNumber === null || (screenNumber === null && !IS_MODULE)) {
+			// if (displayNumber === null || (screenNumber === null && !IS_MODULE)) {
+			// todo: this conditional is probably wrong:
+			if (displayNumber === null && screenNumber === null) {
 				let reg = /^:(\d+)(?:\.(\d+))?$/;
 				let results = reg.exec(process.env.DISPLAY);
 				if (results[2]) {
@@ -304,11 +307,17 @@ export class Lagless2Host {
 			args = [
 				// input:
 				`-f ${videoFormat}`,
-				this.os === "windows" && !settings.videoDevice && `-offset_x ${settings.offsetX}`,
-				this.os === "windows" && !settings.videoDevice && `-offset_y ${settings.offsetY}`,
+				videoFormat === "gdigrab" && `-offset_x ${settings.offsetX}`,
+				videoFormat === "gdigrab" && `-offset_y ${settings.offsetY}`,
+				// videoFormat === "x11grab" && `-grab_x ${settings.offsetX}`,
+				// videoFormat === "x11grab" && `-grab_y ${settings.offsetY}`,
 				widthHeightArgs,
 				`-framerate ${settings.captureRate}`,
-				!settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
+				// !settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
+				// ["gdigrab", "x11grab"].includes(videoFormat) &&
+				// 	`-${videoFormat === "gdigrab" ? "offset" : "grab"}_x ${settings.offsetX}`,
+				["gdigrab", "x11grab"].includes(videoFormat) &&
+					`-draw_mouse ${settings.drawMouse ? 1 : 0}`,
 				`-i ${videoInput}`,
 
 				// output settings:
@@ -351,12 +360,14 @@ export class Lagless2Host {
 			args = [
 				// video:
 				`-f ${videoFormat}`,
-				this.os === "windows" && !settings.videoDevice && `-offset_x ${settings.offsetX}`,
-				this.os === "windows" && !settings.videoDevice && `-offset_y ${settings.offsetY}`,
+				videoFormat === "gdigrab" && `-offset_x ${settings.offsetX}`,
+				videoFormat === "gdigrab" && `-offset_y ${settings.offsetY}`,
+				// videoFormat === "x11grab" && `-grab_x ${settings.offsetX}`,
+				// videoFormat === "x11grab" && `-grab_y ${settings.offsetY}`,
 				widthHeightArgs,
 				`-framerate ${settings.captureRate}`,
 				!settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
-				`-i title=${videoInput}`,
+				`-i ${videoInput}`,
 
 				// audio:
 				`-f ${audioFormat}`,
@@ -386,7 +397,7 @@ export class Lagless2Host {
 				"-me_method zero", // epzs / zero// new
 				`-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
-				`-bufsize ${settings.videoBufferSize}`,
+				`-bufsize ${settings.videoBufferSize}k`,
 				`-c:v ${settings.videoEncoder}`, // mpeg1video
 				"-",
 			];

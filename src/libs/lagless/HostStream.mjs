@@ -118,7 +118,8 @@ export default class HostStream {
 		});
 
 		this.hostConnection.on("disconnect", () => {
-			this.handleStopStreaming(true);
+			// this.handleStopStreaming(true);
+			this.stopStreaming();
 		});
 
 		// start video host:
