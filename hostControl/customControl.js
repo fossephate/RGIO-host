@@ -14,7 +14,11 @@ this.hostConnection.on("keyboardState", (data) => {
 	for (let i = 0; i < data.keys.length; i++) {
 		let wasPressed = this.pressedKeys.indexOf(data.keys[i]) > -1;
 		if (!wasPressed) {
-			robot.keyToggle(data.keys[i], "down");
+			try {
+				robot.keyToggle(data.keys[i], "down");
+			} catch (error) {
+				console.log(`invalid key (down): ${data.keys[i]}`);
+			}
 			this.pressedKeys.push(data.keys[i]);
 		}
 	}
@@ -22,7 +26,11 @@ this.hostConnection.on("keyboardState", (data) => {
 		let isStillPressed = data.keys.indexOf(this.pressedKeys[i]) > -1;
 		if (!isStillPressed) {
 			// unpress keys that are no longer held:
-			robot.keyToggle(this.pressedKeys[i], "up");
+			try {
+				robot.keyToggle(this.pressedKeys[i], "up");
+			} catch (error) {
+				console.log(`invalid key (up): ${data.keys[i]}`);
+			}
 			this.pressedKeys.splice(i, 1);
 		}
 	}

@@ -216,8 +216,7 @@ export class Lagless2Host {
 		// 	console.log(`stdout: ${data}`);
 		// });
 		this.ffmpegInstanceVideo.stderr.on("data", (data) => {
-			// if (window.log) {
-			if (false) {
+			if (settings.debug) {
 				console.log(`stderr (video): ${data}`);
 			}
 		});

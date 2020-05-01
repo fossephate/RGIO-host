@@ -82,8 +82,7 @@ export default class HostStream {
 
 		this.videoStream = null;
 		this.hostControl = null;
-
-		this.authToken = null;
+		
 		this.streamKey = null;
 
 		this.args = args;
@@ -277,7 +276,7 @@ export default class HostStream {
 			{ user: user, password: password, socketid: this.accountConnection.id },
 			(data) => {
 				if (data.success) {
-					this.authToken = data.authToken;
+					this.streamKey = data.streamKey;
 				} else {
 					console.log(data.reason);
 				}
@@ -289,7 +288,7 @@ export default class HostStream {
 // if (!IS_MODULE) {
 
 let args = getArgs();
-if (args.user) {
+if (args.user || args.streamKey) {
 	if (HOST_OS === "windows") {
 		args.ffmpegLocation = "./misc/utils/ffmpeg.exe";
 		args.catLocation = "./misc/utils/cat.exe";
@@ -355,20 +354,27 @@ if (args.user) {
 
 	let hostStream = new HostStream();
 	hostStream.connectAccountServer({ ip: args.accountIP, port: args.accountPort });
-	hostStream.login(args.user, args.password);
+
+	if (args.user && args.password) {
+		hostStream.login({ user: args.user, password: args.password });
+	} else if (args.streamKey) {
+		hostStream.streamKey = args.streamKey;
+	} else {
+		console.log("no host credentials!");
+	}
 
 	setTimeout(() => {
 		hostStream.accountConnection.emit(
 			"stopStreaming",
 			{
-				authToken: hostStream.authToken,
+				streamKey: hostStream.streamKey,
 			},
 			(data) => {
 				console.log(data);
 				hostStream.accountConnection.emit(
 					"startStreaming",
 					{
-						authToken: hostStream.authToken,
+						streamKey: hostStream.streamKey,
 						streamSettings: {
 							...args,
 						},
