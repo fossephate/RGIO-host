@@ -331,7 +331,7 @@ export class Lagless2Host {
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
 				(settings.qmin !== "default") && `-qmin ${settings.qmin}`,
-				(settings.qmax !== "default") && `-qmin ${settings.qmax}`,
+				(settings.qmax !== "default") && `-qmax ${settings.qmax}`,
 				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
 				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
@@ -396,7 +396,7 @@ export class Lagless2Host {
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
 				(settings.qmin !== "default") && `-qmin ${settings.qmin}`,
-				(settings.qmax !== "default") && `-qmin ${settings.qmax}`,
+				(settings.qmax !== "default") && `-qmax ${settings.qmax}`,
 				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
 				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
