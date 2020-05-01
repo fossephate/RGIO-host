@@ -325,7 +325,7 @@ export class Lagless2Host {
 				`-vf scale=${settings.resolution * (settings.width / settings.height)}:${
 					settings.resolution
 				}`,
-				(settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
+				// (settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
 				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
@@ -387,7 +387,7 @@ export class Lagless2Host {
 				`-vf scale=${settings.resolution * (settings.width / settings.height)}:${
 					settings.resolution
 				}`,
-				(settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
+				// (settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
 				(settings.videoBitrate !== "default") && `-maxrate ${settings.videoBitrate}k`,
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
