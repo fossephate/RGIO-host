@@ -82,7 +82,7 @@ export default class HostStream {
 
 		this.videoStream = null;
 		this.hostControl = null;
-		
+
 		this.streamKey = null;
 
 		this.args = args;
@@ -207,7 +207,6 @@ export default class HostStream {
 			});
 		} else if (args.videoType === "mpeg1") {
 			this.videoStream = new Lagless2Host(args);
-			console.log(this.videoStream);
 
 			this.videoStream.connectServers({
 				hostConnection: this.hostConnection,
@@ -356,7 +355,7 @@ if (args.user || args.streamKey) {
 	hostStream.connectAccountServer({ ip: args.accountIP, port: args.accountPort });
 
 	if (args.user && args.password) {
-		hostStream.login({ user: args.user, password: args.password });
+		hostStream.login(args.user, args.password);
 	} else if (args.streamKey) {
 		hostStream.streamKey = args.streamKey;
 	} else {
@@ -370,7 +369,7 @@ if (args.user || args.streamKey) {
 				streamKey: hostStream.streamKey,
 			},
 			(data) => {
-				let streamSettings = {...args};
+				let streamSettings = { ...args };
 				delete streamSettings["user"];
 				delete streamSettings["password"];
 				delete streamSettings["streamKey"];
