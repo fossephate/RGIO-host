@@ -52,6 +52,8 @@ export class Lagless2Host {
 			captureRate: 60,
 			resolution: 540,
 			videoBitrate: 2000,
+			minVideoBitrate: "default",
+			maxVideoBitrate: "default",
 			offsetX: 0,
 			offsetY: 0,
 			width: 1280,
@@ -335,7 +337,9 @@ export class Lagless2Host {
 				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
 				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
-				(settings.videoBitrate !== "default") && `-maxrate ${settings.videoBitrate}k`,
+				(settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
+				(settings.minVideoBitrate !== "default") && `-minrate ${settings.minVideoBitrate}k`,
+				(settings.maxVideoBitrate !== "default") && `-maxrate ${settings.maxVideoBitrate}k`,
 				`-c:v ${settings.videoEncoder}`, // mpeg1video
 				"-",
 			];
@@ -400,6 +404,9 @@ export class Lagless2Host {
 				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
 				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
+				(settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
+				(settings.minVideoBitrate !== "default") && `-minrate ${settings.minVideoBitrate}k`,
+				(settings.maxVideoBitrate !== "default") && `-maxrate ${settings.maxVideoBitrate}k`,
 				`-c:v ${settings.videoEncoder}`, // mpeg1video
 				"-",
 			];
