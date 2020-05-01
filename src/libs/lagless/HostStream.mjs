@@ -370,14 +370,15 @@ if (args.user || args.streamKey) {
 				streamKey: hostStream.streamKey,
 			},
 			(data) => {
-				console.log(data);
+				let streamSettings = {...args};
+				delete streamSettings["user"];
+				delete streamSettings["password"];
+				delete streamSettings["streamKey"];
 				hostStream.accountConnection.emit(
 					"startStreaming",
 					{
 						streamKey: hostStream.streamKey,
-						streamSettings: {
-							...args,
-						},
+						streamSettings: streamSettings,
 					},
 					(data) => {
 						hostStream.startStreaming({ ...args, ...data });

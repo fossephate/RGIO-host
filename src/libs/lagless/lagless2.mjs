@@ -210,17 +210,16 @@ export class Lagless2Host {
 		}
 
 		this.ffmpegInstanceVideo = spawn(this.ffmpegLocation, this.getVideoArgs(settings));
-
-		// if (settings.debug) {
+		
 		// this.ffmpegInstanceVideo.stdout.on("data", (data) => {
 		// 	console.log(`stdout: ${data}`);
 		// });
-		this.ffmpegInstanceVideo.stderr.on("data", (data) => {
-			if (settings.debug) {
+		
+		if (settings.debug) {
+			this.ffmpegInstanceVideo.stderr.on("data", (data) => {
 				console.log(`stderr (video): ${data}`);
-			}
-		});
-		// }
+			});
+		}
 		this.ffmpegInstanceVideo.on("close", this.handleVideoClose);
 		this.ffmpegInstanceVideo.stdout.on("data", this.sendVideoStream);
 	};
@@ -234,16 +233,14 @@ export class Lagless2Host {
 		}
 
 		this.ffmpegInstanceAudio = spawn(this.ffmpegLocation, this.getAudioArgs(settings));
-		// if (settings.debug) {
+
 		// this.ffmpegInstanceAudio.stdout.on("data", (data) => {
 		// 	console.log(`stdout: ${data}`);
 		// });
-		this.ffmpegInstanceAudio.stderr.on("data", (data) => {
-			if (/*window.log*/ false) {
-				console.log(`stderr (audio): ${data}`);
-			}
-		});
-		// }
+
+		// this.ffmpegInstanceAudio.stderr.on("data", (data) => {
+		// 	console.log(`stderr (audio): ${data}`);
+		// });
 		this.ffmpegInstanceAudio.on("close", this.handleAudioClose);
 		this.ffmpegInstanceAudio.stdout.on("data", this.sendAudioStream);
 	};
