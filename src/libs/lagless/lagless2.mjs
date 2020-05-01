@@ -92,7 +92,7 @@ export class Lagless2Host {
 		// }
 
 		this.ffmpegLocation = args.ffmpegLocation;
-		
+
 		// if (this.os === "windows") {
 		// 	this.ffmpegLocation = `${path}/misc/utils/ffmpeg.exe`;
 		// } else if (this.os === "linux") {
@@ -308,7 +308,7 @@ export class Lagless2Host {
 				// videoFormat === "x11grab" && `-grab_x ${settings.offsetX}`,
 				// videoFormat === "x11grab" && `-grab_y ${settings.offsetY}`,
 				widthHeightArgs,
-				`-framerate ${settings.captureRate}`,
+				(settings.captureRate !== "default") && `-framerate ${settings.captureRate}`,
 				// !settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
 				// ["gdigrab", "x11grab"].includes(videoFormat) &&
 				// 	`-${videoFormat === "gdigrab" ? "offset" : "grab"}_x ${settings.offsetX}`,
@@ -325,13 +325,13 @@ export class Lagless2Host {
 				`-vf scale=${settings.resolution * (settings.width / settings.height)}:${
 					settings.resolution
 				}`,
-				`-b:v ${settings.videoBitrate}k`,
+				(settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
-				`-g ${settings.groupOfPictures}`, // group of pictures (gop)
+				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
-				`-bufsize ${settings.videoBufferSize}k`,
-				`-maxrate ${settings.videoBitrate}k`,
+				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
+				(settings.videoBitrate !== "default") && `-maxrate ${settings.videoBitrate}k`,
 				`-c:v ${settings.videoEncoder}`, // mpeg1video
 				"-",
 			];
@@ -361,7 +361,7 @@ export class Lagless2Host {
 				// videoFormat === "x11grab" && `-grab_x ${settings.offsetX}`,
 				// videoFormat === "x11grab" && `-grab_y ${settings.offsetY}`,
 				widthHeightArgs,
-				`-framerate ${settings.captureRate}`,
+				(settings.captureRate !== "default") && `-framerate ${settings.captureRate}`,
 				!settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
 				`-i ${videoInput}`,
 
@@ -380,20 +380,20 @@ export class Lagless2Host {
 				"-c:a mp2",
 				`-b:a ${settings.audioBitrate}k`,
 				"-async 1", // audio sync method// new
-				`-muxdelay ${settings.muxDelay}`,
+				(settings.muxDelay !== "default") && `-muxdelay ${settings.muxDelay}`,
 
 				// video:
 				`-r ${settings.framerate}`,
 				`-vf scale=${settings.resolution * (settings.width / settings.height)}:${
 					settings.resolution
 				}`,
-				`-b:v ${settings.videoBitrate}k`,
-				`-maxrate ${settings.videoBitrate}k`,
+				(settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
+				(settings.videoBitrate !== "default") && `-maxrate ${settings.videoBitrate}k`,
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
-				`-g ${settings.groupOfPictures}`, // group of pictures (gop)
+				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
-				`-bufsize ${settings.videoBufferSize}k`,
+				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
 				`-c:v ${settings.videoEncoder}`, // mpeg1video
 				"-",
 			];
