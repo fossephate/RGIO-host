@@ -61,17 +61,19 @@ export class Lagless2Host {
 			audioDevice: null,
 			audioBitrate: 128,
 			audioRate: 44100,
-			muxDelay: 0.001,
+			muxDelay: 0.0001,
 			videoEncoder: "mpeg1video",
 			// videoEncoder: args.videoEncoder || "mpeg2video",
 			usePulse: false,
 			drawMouse: false,
 			useCustomRecorderPort: false,
-			audioBufferSize: 128,
-			videoBufferSize: 512,
-			groupOfPictures: 60,
+			audioBufferSize: "default",//128,
+			videoBufferSize: "default",//512,
+			groupOfPictures: "default",
 			displayNumber: null,
 			screenNumber: null,
+			qmin: "default",
+			qmax: "default",
 			...args,
 		};
 
@@ -328,6 +330,8 @@ export class Lagless2Host {
 				// (settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
+				(settings.qmin !== "default") && `-qmin ${settings.qmin}`,
+				(settings.qmax !== "default") && `-qmin ${settings.qmax}`,
 				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
 				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
@@ -391,6 +395,8 @@ export class Lagless2Host {
 				(settings.videoBitrate !== "default") && `-maxrate ${settings.videoBitrate}k`,
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
+				(settings.qmin !== "default") && `-qmin ${settings.qmin}`,
+				(settings.qmax !== "default") && `-qmin ${settings.qmax}`,
 				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
 				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
@@ -430,7 +436,7 @@ export class Lagless2Host {
 			"-ac 1", // new
 			// this.os === "windows" && `-audio_buffer_size ${settings.audioBufferSize}k`, // new
 			// `-audio_buffer_size ${settings.audioBufferSize}k`,
-			`-bufsize ${settings.audioBufferSize}k`,
+			(settings.audioBufferSize !== "default") && `-bufsize ${settings.audioBufferSize}k`,
 			"-c:a mp2",
 			`-b:a ${settings.audioBitrate}k`,
 			"-async 1", // audio sync method// new
