@@ -357,6 +357,7 @@ if (args.user || args.streamKey) {
 	if (args.user && args.password) {
 		hostStream.login(args.user, args.password);
 	} else if (args.streamKey) {
+		hostStream.streamKey = hostStream.streamKey.replace(/^["']|["']$/g, "");
 		hostStream.streamKey = args.streamKey;
 	} else {
 		console.log("no host credentials!");

@@ -30,7 +30,7 @@ import { Route, Switch, withRouter } from "react-router";
 import { withStyles } from "@material-ui/core/styles";
 // components:
 
-import VideoSettingsForm from "src/components/forms/VideoSettingsForm.jsx";
+import VideoSettingsForm from "shared/components/forms/VideoSettingsForm.jsx";
 import TitleBar from "src/components/appBar/TitleBar.jsx";
 import AppBar from "src/components/appBar/AppBar.jsx";
 import Chat from "shared/components/chat/Chat.jsx";
@@ -330,10 +330,10 @@ class App extends Component {
 								<>
 									<div className={classes.settingsContainer}>
 										<VideoSettingsForm
+											initialValues={this.state.formInitialValues}
 											onSubmit={this.handleStartStreaming}
 											onStopStreaming={this.handleStopStreaming}
 											onGetSettings={this.handleGetSettings}
-											initialValues={this.state.formInitialValues}
 										/>
 										<Chat hide={false} />
 									</div>
