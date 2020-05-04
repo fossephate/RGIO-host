@@ -238,9 +238,9 @@ export class Lagless2Host {
 
 		this.ffmpegInstanceAudio = spawn(this.ffmpegLocation, this.getAudioArgs(settings));
 
-		this.ffmpegInstanceAudio.stdout.on("data", (data) => {
-			console.log(`stdout: ${data}`);
-		});
+		// this.ffmpegInstanceAudio.stdout.on("data", (data) => {
+		// 	console.log(`stdout: ${data}`);
+		// });
 
 		if (settings.debug) {
 			this.ffmpegInstanceAudio.stderr.on("data", (data) => {
