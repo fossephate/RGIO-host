@@ -5,10 +5,10 @@ import SwitchController from "./SwitchController.mjs";
 import spawn from "child_process";
 // import remote from "electron";
 // const app = remote.app;
-// // import { app } from "electron/remote";
-// // const app = remote.app;
+import remote from "electron";
+const app = remote.app;
 
-const app = require("electron").remote.app;
+// const app = require("electron").remote.app;
 
 export class XboxControllerManager {
 	constructor(controllerCount) {

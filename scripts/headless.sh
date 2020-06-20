@@ -5,3 +5,6 @@
 node --experimental-modules ./src/libs/lagless/HostStream.mjs --user="fosse5" --password="QWERTY1234" \
 --drawMouse="true" --usePulse="true" \
 --audioDevice="default" --useLocalFfmpegInstall="true"
+
+
+# node --experimental-modules ./src/libs/lagless/HostStream.mjs --user="fosse5" --password="QWERTY1234" --drawMouse="true" --usePulse="true" --audioDevice="default" --useLocalFfmpegInstall="true"
