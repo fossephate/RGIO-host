@@ -6,6 +6,13 @@ const update = require("./update.js");
 // handle automatic updating:
 
 
+// https://stackoverflow.com/questions/60106922/electron-non-context-aware-native-module-in-renderer
+// https://github.com/electron/electron/issues/18397
+// https://github.com/serialport/node-serialport/issues/1186
+// electron.app.allowRendererProcessReuse = false;
+app.allowRendererProcessReuse = false;
+
+
 // reload on save:
 if (!app.isPackaged) {
 	require("electron-reload")(__dirname);

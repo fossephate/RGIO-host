@@ -8,7 +8,7 @@ const spawn = child_process.spawn;
 import http from "http";
 import socketio from "socket.io-client";
 // const IS_MODULE = require.main === module;
-const IS_MODULE = true;
+// const IS_MODULE = true;
 
 // todo:
 // re-combine with client side lagless2
@@ -219,11 +219,11 @@ export class Lagless2Host {
 		// 	console.log(`stdout: ${data}`);
 		// });
 
-		if (settings.debug) {
+		// if (settings.debug) {
 			this.ffmpegInstanceVideo.stderr.on("data", (data) => {
 				console.log(`stderr (video): ${data}`);
 			});
-		}
+		// }
 		this.ffmpegInstanceVideo.on("close", this.handleVideoClose);
 		this.ffmpegInstanceVideo.stdout.on("data", this.sendVideoStream);
 	};
@@ -284,24 +284,34 @@ export class Lagless2Host {
 				videoInput = settings.windowTitle ? `title=${settings.windowTitle}` : "desktop";
 			}
 		} else if (this.os === "linux") {
-			let dsString = null;
-			let displayNumber = settings.displayNumber;
-			let screenNumber = settings.screenNumber;
-			// if (displayNumber === null || (screenNumber === null && !IS_MODULE)) {
-			// todo: this conditional is probably wrong:
-			if (displayNumber === null && screenNumber === null) {
-				let reg = /^:(\d+)(?:\.(\d+))?$/;
-				let results = reg.exec(process.env.DISPLAY);
-				if (results[2]) {
-					displayNumber = results[1];
-					screenNumber = results[2];
-					dsString = `:${displayNumber}.${screenNumber}`;
-				} else {
-					dsString = `:${results[1]}`;
+
+
+			if (settings.videoDevice && settings.capture == "device") {
+				videoFormat = "v4l2";
+				videoInput = `${settings.videoDevice}`;
+			} else {
+				// capture with x11grab:
+				let dsString = null;
+				let displayNumber = settings.displayNumber;
+				let screenNumber = settings.screenNumber;
+				// if (displayNumber === null || (screenNumber === null && !IS_MODULE)) {
+				// todo: this conditional is probably wrong:
+				if (displayNumber === null && screenNumber === null) {
+					let reg = /^:(\d+)(?:\.(\d+))?$/;
+					let results = reg.exec(process.env.DISPLAY);
+					if (results[2]) {
+						displayNumber = results[1];
+						screenNumber = results[2];
+						dsString = `:${displayNumber}.${screenNumber}`;
+					} else {
+						dsString = `:${results[1]}`;
+					}
 				}
+				videoFormat = "x11grab";
+				videoInput = `${dsString}+${settings.offsetX},${settings.offsetY}`;
 			}
-			videoFormat = "x11grab";
-			videoInput = `${dsString}+${settings.offsetX},${settings.offsetY}`;
+
+
 		}
 
 		let args;

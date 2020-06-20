@@ -116,7 +116,7 @@ class App extends Component {
 		}
 
 		this.hostStream = new HostStream(args);
-		this.hostStream.connectAccountServer({ connection: this.accountConnection });
+		this.hostStream.connectAccountServer({ socket: this.accountConnection });
 
 		// this.initialValues = {};
 
@@ -136,9 +136,9 @@ class App extends Component {
 				videoDeviceDropdown: 0,
 				resolution: 540,
 				videoBitrate: 1500,
-				videoBufferSize: 512,
-				audioBufferSize: 128,
-				groupOfPictures: 60,
+				// videoBufferSize: 512,
+				// audioBufferSize: 128,
+				// groupOfPictures: 60,
 				captureRate: 60,
 				framerate: 30,
 				capture: "window",
@@ -147,7 +147,7 @@ class App extends Component {
 				offsetY: 0,
 				controllerCount: 1,
 				controlSwitch: false,
-				virtualXboxControllers: true,
+				virtualXboxControllers: false,
 			},
 		};
 
@@ -210,6 +210,8 @@ class App extends Component {
 		if (args.audioDeviceDropdown !== 0) {
 			args.audioDevice = args.audioDeviceDropdown;
 		}
+
+		args.playerCount = args.controllerCount;
 
 		this.props.accountConnection.emit(
 			"startStreaming",

@@ -23,7 +23,7 @@ switch (platform) {
 }
 
 import socketio from "socket.io-client";
-import HostControl from "../../../hostControl/HostControl.mjs";
+import HostControl from "src/libs/stream/HostControl.mjs";
 import { Lagless2Host } from "./lagless2.mjs";
 import { Lagless4Host } from "./lagless4.mjs";
 // import { spawn } from "child_process";
@@ -89,8 +89,8 @@ export default class HostStream {
 	}
 
 	connectAccountServer = (options) => {
-		if (options.connection) {
-			this.accountConnection = options.connection;
+		if (options.socket) {
+			this.accountConnection = options.socket;
 		} else if (options.ip && options.port) {
 			this.accountConnection = socketio(`https://${options.ip}`, {
 				path: `/${options.port}/socket.io`,
