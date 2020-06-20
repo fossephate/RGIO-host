@@ -23,7 +23,7 @@ switch (platform) {
 }
 
 import socketio from "socket.io-client";
-import HostControl from "src/libs/stream/HostControl.mjs";
+import HostControl from "../stream/HostControl.mjs";
 import { Lagless2Host } from "./lagless2.mjs";
 import { Lagless4Host } from "./lagless4.mjs";
 // import { spawn } from "child_process";
