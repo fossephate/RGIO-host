@@ -300,7 +300,7 @@ if (args.user || args.streamKey) {
 		args.catLocation = "cat";
 	}
 
-	args.customLocation = "./hostControl/customControl.js";
+	args.customLocation = "./src/libs/stream/customControl.js";
 
 	args = {
 		accountIP: "remotegames.io",

@@ -52,7 +52,14 @@ export class SwitchControllerManager {
 		for (let i = 0; i < 8; i++) {
 			let controller = new SwitchController();
 			// let controller = {};
-			controller.connect(`COM${i + 1}`);
+			
+			// need to check whether this is windows / linux:
+			if (/*linux*/true) {
+				// controller.connect(`/dev/tty?${i + 1}`);
+			} else if (/*windows*/false) {
+				controller.connect(`COM${i + 1}`);
+			}
+
 			setTimeout(() => {
 				if (controller.synced) {
 					this.controllers.push(controller);
