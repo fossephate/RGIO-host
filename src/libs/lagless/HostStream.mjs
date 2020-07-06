@@ -1,27 +1,3 @@
-// const IS_MODULE = require.main === module;
-let HOST_OS = "windows";
-let platform;
-
-// if (IS_MODULE) {
-// 	platform = process.platform;
-// } else {
-// 	platform = window.process.platform;
-// }
-
-platform = process.platform;
-
-switch (platform) {
-	case "win32":
-		HOST_OS = "windows";
-		break;
-	case "linux":
-		HOST_OS = "linux";
-		break;
-	default:
-		HOST_OS = "linux";
-		break;
-}
-
 import socketio from "socket.io-client";
 import HostControl from "../stream/HostControl.mjs";
 import { Lagless2Host } from "./lagless2.mjs";
@@ -124,7 +100,7 @@ export default class HostStream {
 		// start video host:
 
 		// todo set host2 and port2 based on region and args:
-		args = { ...args, ...this.args, os: HOST_OS /*, isModule: IS_MODULE*/ };
+		args = { ...args, ...this.args, os: process.platform /*, isModule: IS_MODULE*/ };
 		this.args = args;
 
 		this.videoConnection = socketio(`https://${args.videoIP}`, {
@@ -288,10 +264,10 @@ export default class HostStream {
 
 let args = getArgs();
 if (args.user || args.streamKey) {
-	if (HOST_OS === "windows") {
+	if (process.platform === "win32") {
 		args.ffmpegLocation = "./misc/utils/ffmpeg.exe";
 		args.catLocation = "./misc/utils/cat.exe";
-	} else if (HOST_OS === "linux") {
+	} else if (process.platform === "linux") {
 		if (args.useLocalFfmpegInstall) {
 			args.ffmpegLocation = "ffmpeg";
 		} else {

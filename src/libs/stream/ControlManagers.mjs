@@ -54,9 +54,9 @@ export class SwitchControllerManager {
 			// let controller = {};
 			
 			// need to check whether this is windows / linux:
-			if (/*linux*/true) {
-				// controller.connect(`/dev/tty?${i + 1}`);
-			} else if (/*windows*/false) {
+			if (process.platform === "linux") {
+				controller.connect(`/dev/ttyUSB${i + 1}`);
+			} else if (process.platform === "win32") {
 				controller.connect(`COM${i + 1}`);
 			}
 
