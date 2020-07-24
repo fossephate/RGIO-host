@@ -215,9 +215,6 @@ class App extends Component {
 			args.audioDevice = args.audioDeviceDropdown;
 		}
 
-		args.playerCount = Math.max(args.virtualXboxControllerCount, args.switchControllerCount, args.playerCount);
-		args.playerCount = Math.min(args.playerCount, 8);
-
 		this.props.accountConnection.emit(
 			"startStreaming",
 			{

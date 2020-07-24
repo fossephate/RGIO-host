@@ -44,9 +44,9 @@ this.hostConnection.on("mouseState", (data) => {
 		}
 	}
 	let x, y;
-	if (this.streamSettings.capture === "desktop") {
-		x = Math.round((data.x + this.streamSettings.offsetX) * this.streamSettings.width);
-		y = Math.round((data.y + this.streamSettings.offsetY) * this.streamSettings.height);
+	if (this.settings.capture === "desktop") {
+		x = Math.round((data.x + this.settings.offsetX) * this.settings.width);
+		y = Math.round((data.y + this.settings.offsetY) * this.settings.height);
 	}
 
 	robot.moveMouse(x, y);

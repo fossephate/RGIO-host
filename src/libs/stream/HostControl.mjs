@@ -17,9 +17,8 @@ export default class HostControl {
 
 		this.controllerManager = null;
 		this.authHostTimer = null;
-		this.options = options;
+		this.settings = options;
 
-		this.streamSettings = options.streamSettings;
 		this.pressedKeys = [];
 		this.prevMouseBtns = { left: 0, right: 0, middle: 0 };
 		this.prevMousePos = { x: 0, y: 0 };
@@ -52,26 +51,26 @@ export default class HostControl {
 	};
 
 	init = () => {
-		if (this.options.switchControllerCount > 0) {
+		if (this.settings.switchControllerCount > 0) {
 			this.controllerManager = new SwitchControllerManager(
-				this.options.switchControllerCount,
-				this.options.serialPortLocation,
-				this.options.serialPortNumbers,
+				this.settings.switchControllerCount,
+				this.settings.serialPortLocation,
+				this.settings.serialPortNumbers,
 			);
-		} else if (this.options.virtualXboxControllerCount > 0) {
+		} else if (this.settings.virtualXboxControllerCount > 0) {
 			this.controllerManager = new XboxControllerManager(
-				this.options.virtualXboxControllerCount,
+				this.settings.virtualXboxControllerCount,
 			);
 		}
 
 		if (
-			this.options.switchControllerCount > 0 ||
-			this.options.virtualXboxControllerCount > 0
+			this.settings.switchControllerCount > 0 ||
+			this.settings.virtualXboxControllerCount > 0
 		) {
 			this.controllerManager.init();
 		}
 
-		if (this.options.keyboardEnabled || this.options.mouseEnabled) {
+		if (this.settings.keyboardEnabled || this.settings.mouseEnabled) {
 			// set delay to 0ms:
 			robot.setKeyboardDelay(0);
 			robot.setMouseDelay(0);

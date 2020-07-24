@@ -191,7 +191,7 @@ export class Lagless2Host {
 
 	handleVideoClose = (code) => {
 		clearTimeout(this.videoStreamTimer);
-		console.log(`closing code: ${code}`);
+		// console.log(`closing code: ${code}`);
 		if (!this.stopped) {
 			this.createVideoStream(this.settings);
 		}
@@ -199,7 +199,7 @@ export class Lagless2Host {
 
 	handleAudioClose = (code) => {
 		clearTimeout(this.audioStreamTimer);
-		console.log(`closing code: ${code}`);
+		// console.log(`closing code: ${code}`);
 		if (!this.stopped) {
 			this.createAudioStream(this.settings);
 		}

@@ -207,14 +207,7 @@ export default class HostStream {
 		catProc.stdout.setEncoding("utf8");
 		catProc.stdout.on("data", (data) => {
 			data = data.toString();
-			this.hostControl = new HostControl(this.hostConnection, {
-				streamSettings: this.args,
-				controllerCount: this.args.controllerCount,
-				keyboardEnabled: this.args.keyboardEnabled,
-				mouseEnabled: this.args.mouseEnabled,
-				controlSwitch: this.args.controlSwitch,
-				virtualXboxControllers: this.args.virtualXboxControllers,
-			});
+			this.hostControl = new HostControl(this.hostConnection, this.args);
 			this.hostControl.setupAuthentication(this.args.streamKey);
 			this.hostControl.start(data);
 		});
@@ -310,10 +303,11 @@ if (args.user || args.streamKey) {
 		region: "US East",
 
 		playerCount: 1,
+		controllerCount: 0,
 		keyboardEnabled: true,
 		mouseEnabled: true,
-		switchControllerCount: false,
-		virtualXboxControllerCount: false,
+		switchControllerCount: 0,
+		virtualXboxControllerCount: 0,
 		serialPortLocation: null,// /dev/ttyUSB#
 		serialPortNumbers: null,// "[0123]"
 
@@ -325,6 +319,11 @@ if (args.user || args.streamKey) {
 	if (args.serialPortNumbers) {
 		args.serialPortNumbers = args.serialPortNumbers.substr(1).slice(0, -1);
 	}
+
+	args.playerCount = Math.max(args.virtualXboxControllerCount, args.switchControllerCount, args.playerCount);
+	args.playerCount = Math.min(args.playerCount, 8);
+
+	args.controllerCount = Math.max(args.controllerCount, args.virtualXboxControllerCount, args.switchControllerCount);
 	
 
 	let hostStream = new HostStream();
