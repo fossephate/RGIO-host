@@ -310,22 +310,22 @@ if (args.user || args.streamKey) {
 		region: "US East",
 
 		playerCount: 1,
-		controllerCount: 0,
 		keyboardEnabled: true,
 		mouseEnabled: true,
-		controlSwitch: false,
-		virtualXboxControllers: false,
+		switchControllerCount: false,
+		virtualXboxControllerCount: false,
+		serialPortLocation: null,// /dev/ttyUSB#
+		serialPortNumbers: null,// "[0123]"
 
 		...args,
 	};
 
-	if (args.controlSwitch && args.virtualXboxControllers) {
-		args.controlSwitch = false;
+	// remove brackets ([]) from the input since if we didn't input it as a string 0123 would become 123
+	// note port numbers > 9 aren't supported
+	if (args.serialPortNumbers) {
+		args.serialPortNumbers = args.serialPortNumbers.substr(1).slice(0, -1);
 	}
-
-	if (args.controllerCount > args.playerCount) {
-		args.playerCount = args.controllerCount;
-	}
+	
 
 	let hostStream = new HostStream();
 	hostStream.connectAccountServer({ ip: args.accountIP, port: args.accountPort });

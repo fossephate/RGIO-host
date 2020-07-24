@@ -165,6 +165,9 @@ export default class SwitchController {
 
 	setPacked = (btns) => {
 		this.btns = 0;
+
+		// this function shouldn't be needed if the packed layouts are the same between the hardware and server
+		// todo: check if this is the case and if not fix it
 		if (this.is_pressed(btns, 0)) {
 			this.up = 1;
 			this.btns += DPAD_U;

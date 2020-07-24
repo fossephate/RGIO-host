@@ -10,7 +10,7 @@ if (IS_MODULE) {
 
 switch (platform) {
 	case "win32":
-		HOST_OS = "windows";
+		HOST_OS = "win32";
 		break;
 	case "linux":
 		HOST_OS = "linux";
@@ -106,13 +106,15 @@ class App extends Component {
 		this.accountConnection = this.props.accountConnection;
 
 		let args = {};
-		if (HOST_OS === "windows") {
+		if (HOST_OS === "win32") {
 			args.catLocation = `${app.getAppPath()}/misc/utils/cat.exe`;
 			args.ffmpegLocation = `${app.getAppPath()}/misc/utils/ffmpeg.exe`;
+			args.serialPortLocation = "COM";
 		} else if (HOST_OS === "linux") {
 			// catLocation = `${app.getAppPath()}/misc/utils/cat`;
 			args.catLocation = "cat";
 			args.ffmpegLocation = `${app.getAppPath()}/misc/utils/ffmpeg`;
+			args.serialPortLocation = "/dev/ttyUSB";
 		}
 
 		this.hostStream = new HostStream(args);
@@ -145,9 +147,11 @@ class App extends Component {
 				videoType: "mpeg1",
 				offsetX: 0,
 				offsetY: 0,
-				controllerCount: 1,
-				controlSwitch: false,
-				virtualXboxControllers: false,
+				playerCount: 1,
+				switchControllerCount: 0,
+				virtualXboxControllerCount: 0,
+				serialPortLocation: null, // /dev/ttyUSB#
+				serialPortNumbers: null, // "[0123]",
 			},
 		};
 
@@ -211,7 +215,8 @@ class App extends Component {
 			args.audioDevice = args.audioDeviceDropdown;
 		}
 
-		args.playerCount = args.controllerCount;
+		args.playerCount = Math.max(args.virtualXboxControllerCount, args.switchControllerCount, args.playerCount);
+		args.playerCount = Math.min(args.playerCount, 8);
 
 		this.props.accountConnection.emit(
 			"startStreaming",

@@ -43,22 +43,19 @@ export class XboxControllerManager {
 }
 
 export class SwitchControllerManager {
-	constructor(controllerCount) {
+	constructor(controllerCount, serialPortLocation, serialPortNumbers) {
 		this.controllerCount = controllerCount;
+		this.serialPortLocation = serialPortLocation;
+		this.serialPortNumbers = serialPortNumbers;
 		this.controllers = [];
 	}
 
 	init = () => {
-		for (let i = 0; i < 8; i++) {
+
+		for (let i = 0; i < this.controllerCount; i++) {
 			let controller = new SwitchController();
-			// let controller = {};
-			
-			// need to check whether this is windows / linux:
-			if (process.platform === "linux") {
-				controller.connect(`/dev/ttyUSB${i + 1}`);
-			} else if (process.platform === "win32") {
-				controller.connect(`COM${i + 1}`);
-			}
+
+			controller.connect(this.serialPortLocation + this.serialPortNumbers[i]);
 
 			setTimeout(() => {
 				if (controller.synced) {

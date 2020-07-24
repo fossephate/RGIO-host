@@ -1,5 +1,8 @@
 import socketio from "socket.io-client";
-import { XboxControllerManager, SwitchControllerManager/*, KeyboardMouseManager*/ } from "./ControlManagers.mjs";
+import {
+	XboxControllerManager,
+	SwitchControllerManager /*, KeyboardMouseManager*/,
+} from "./ControlManagers.mjs";
 import robot from "robotjs";
 try {
 	window.robot = robot;
@@ -15,7 +18,7 @@ export default class HostControl {
 		this.controllerManager = null;
 		this.authHostTimer = null;
 		this.options = options;
-		
+
 		this.streamSettings = options.streamSettings;
 		this.pressedKeys = [];
 		this.prevMouseBtns = { left: 0, right: 0, middle: 0 };
@@ -23,7 +26,6 @@ export default class HostControl {
 	}
 
 	setupAuthentication = (streamKey) => {
-
 		this.hostConnection.on("connect", () => {
 			this.hostConnection.emit("hostAuthenticate", {
 				streamKey: streamKey,
@@ -50,19 +52,23 @@ export default class HostControl {
 	};
 
 	init = () => {
+		if (this.options.switchControllerCount > 0) {
+			this.controllerManager = new SwitchControllerManager(
+				this.options.switchControllerCount,
+				this.options.serialPortLocation,
+				this.options.serialPortNumbers,
+			);
+		} else if (this.options.virtualXboxControllerCount > 0) {
+			this.controllerManager = new XboxControllerManager(
+				this.options.virtualXboxControllerCount,
+			);
+		}
 
-
-		if (this.options.controllerCount > 0) {
-		
-			if (this.options.controlSwitch) {
-				this.controllerManager = new SwitchControllerManager(this.options.controllerCount);
-			} else if (this.options.virtualXboxControllers) {
-				this.controllerManager = new XboxControllerManager(this.options.controllerCount);
-			}
-			
-			if (this.options.controlSwitch || this.options.virtualXboxControllers) {
-				this.controllerManager.init();
-			}
+		if (
+			this.options.switchControllerCount > 0 ||
+			this.options.virtualXboxControllerCount > 0
+		) {
+			this.controllerManager.init();
 		}
 
 		if (this.options.keyboardEnabled || this.options.mouseEnabled) {
@@ -70,7 +76,7 @@ export default class HostControl {
 			robot.setKeyboardDelay(0);
 			robot.setMouseDelay(0);
 		}
-	}
+	};
 
 	destroy = () => {
 		if (this.hostConnection) {
