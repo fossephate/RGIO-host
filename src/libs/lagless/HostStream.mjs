@@ -31,7 +31,8 @@ function getArgs() {
 	process.argv.slice(2, process.argv.length).forEach((arg) => {
 		// long arg
 		if (arg.slice(0, 2) === "--") {
-			const longArg = arg.split("=");
+			// split only on first occurance of =:
+			let longArg = arg.split(/=(.+)/);
 			longArg[1] = !isNaN(longArg[1]) ? parseFloat(longArg[1]) : longArg[1];
 			longArg[1] =
 				longArg[1] === "true" || longArg[1] === "false"
@@ -41,7 +42,7 @@ function getArgs() {
 		}
 		// flags
 		else if (arg[0] === "-") {
-			const flags = arg.slice(1, arg.length).split("");
+			let flags = arg.slice(1, arg.length).split("");
 			flags.forEach((flag) => {
 				args[flag] = true;
 			});
