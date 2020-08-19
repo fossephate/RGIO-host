@@ -69,8 +69,8 @@ export class Lagless2Host {
 			usePulse: false,
 			drawMouse: false,
 			useCustomRecorderPort: false,
-			audioBufferSize: "default",//128,
-			videoBufferSize: "default",//512,
+			audioBufferSize: "default", //128,
+			videoBufferSize: "default", //512,
 			groupOfPictures: "default",
 			displayNumber: null,
 			screenNumber: null,
@@ -193,7 +193,8 @@ export class Lagless2Host {
 		clearTimeout(this.videoStreamTimer);
 		// console.log(`closing code: ${code}`);
 		if (!this.stopped) {
-			this.createVideoStream(this.settings);
+			console.log("restarting (video)");
+			setTimeout(this.createVideoStream, 500, this.settings);
 		}
 	};
 
@@ -201,12 +202,13 @@ export class Lagless2Host {
 		clearTimeout(this.audioStreamTimer);
 		// console.log(`closing code: ${code}`);
 		if (!this.stopped) {
-			this.createAudioStream(this.settings);
+			console.log("restarting (audio)");
+			setTimeout(this.createAudioStream, 500, this.settings);
 		}
 	};
 
 	createVideoStream = (settings) => {
-		console.log("restarting ffmpeg (video)");
+		console.log("starting ffmpeg (video)");
 		try {
 			this.ffmpegInstanceVideo.kill();
 		} catch (error) {
@@ -214,22 +216,22 @@ export class Lagless2Host {
 		}
 
 		this.ffmpegInstanceVideo = spawn(this.ffmpegLocation, this.getVideoArgs(settings));
-		
+
 		// this.ffmpegInstanceVideo.stdout.on("data", (data) => {
 		// 	console.log(`stdout: ${data}`);
 		// });
 
 		// if (settings.debug) {
-			this.ffmpegInstanceVideo.stderr.on("data", (data) => {
-				console.log(`stderr (video): ${data}`);
-			});
+		this.ffmpegInstanceVideo.stderr.on("data", (data) => {
+			// console.log(`stderr (video): ${data}`);
+		});
 		// }
-		this.ffmpegInstanceVideo.on("close", this.handleVideoClose);
+		this.ffmpegInstanceVideo.on("exit", this.handleVideoClose);
 		this.ffmpegInstanceVideo.stdout.on("data", this.sendVideoStream);
 	};
 
 	createAudioStream = (settings) => {
-		console.log("restarting ffmpeg (audio)");
+		console.log("starting ffmpeg (audio)");
 		try {
 			this.ffmpegInstanceAudio.kill();
 		} catch (error) {
@@ -242,13 +244,13 @@ export class Lagless2Host {
 		// 	console.log(`stdout: ${data}`);
 		// });
 
-		if (settings.debug) {
-			this.ffmpegInstanceAudio.stderr.on("data", (data) => {
-				console.log(`stderr (audio): ${data}`);
-			});
-		}
+		// if (settings.debug) {
+		this.ffmpegInstanceAudio.stderr.on("data", (data) => {
+			// console.log(`stderr (audio): ${data}`);
+		});
+		// }
 
-		this.ffmpegInstanceAudio.on("close", this.handleAudioClose);
+		this.ffmpegInstanceAudio.on("exit", this.handleAudioClose);
 		this.ffmpegInstanceAudio.stdout.on("data", this.sendAudioStream);
 	};
 
@@ -284,8 +286,6 @@ export class Lagless2Host {
 				videoInput = settings.windowTitle ? `title=${settings.windowTitle}` : "desktop";
 			}
 		} else if (this.os === "linux") {
-
-
 			if (settings.videoDevice && settings.capture == "device") {
 				videoFormat = "v4l2";
 				videoInput = `${settings.videoDevice}`;
@@ -310,8 +310,6 @@ export class Lagless2Host {
 				videoFormat = "x11grab";
 				videoInput = `${dsString}+${settings.offsetX},${settings.offsetY}`;
 			}
-
-
 		}
 
 		let args;
@@ -325,7 +323,7 @@ export class Lagless2Host {
 				// videoFormat === "x11grab" && `-grab_x ${settings.offsetX}`,
 				// videoFormat === "x11grab" && `-grab_y ${settings.offsetY}`,
 				widthHeightArgs,
-				(settings.captureRate !== "default") && `-framerate ${settings.captureRate}`,
+				settings.captureRate !== "default" && `-framerate ${settings.captureRate}`,
 				// !settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
 				// ["gdigrab", "x11grab"].includes(videoFormat) &&
 				// 	`-${videoFormat === "gdigrab" ? "offset" : "grab"}_x ${settings.offsetX}`,
@@ -345,14 +343,14 @@ export class Lagless2Host {
 				// (settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
-				(settings.qmin !== "default") && `-qmin ${settings.qmin}`,
-				(settings.qmax !== "default") && `-qmax ${settings.qmax}`,
-				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
+				settings.qmin !== "default" && `-qmin ${settings.qmin}`,
+				settings.qmax !== "default" && `-qmax ${settings.qmax}`,
+				settings.groupOfPictures !== "default" && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
-				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
-				(settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
-				(settings.minVideoBitrate !== "default") && `-minrate ${settings.minVideoBitrate}k`,
-				(settings.maxVideoBitrate !== "default") && `-maxrate ${settings.maxVideoBitrate}k`,
+				settings.videoBufferSize !== "default" && `-bufsize ${settings.videoBufferSize}k`,
+				settings.videoBitrate !== "default" && `-b:v ${settings.videoBitrate}k`,
+				settings.minVideoBitrate !== "default" && `-minrate ${settings.minVideoBitrate}k`,
+				settings.maxVideoBitrate !== "default" && `-maxrate ${settings.maxVideoBitrate}k`,
 				`-c:v ${settings.videoEncoder}`, // mpeg1video
 				"-",
 			];
@@ -382,7 +380,7 @@ export class Lagless2Host {
 				// videoFormat === "x11grab" && `-grab_x ${settings.offsetX}`,
 				// videoFormat === "x11grab" && `-grab_y ${settings.offsetY}`,
 				widthHeightArgs,
-				(settings.captureRate !== "default") && `-framerate ${settings.captureRate}`,
+				settings.captureRate !== "default" && `-framerate ${settings.captureRate}`,
 				!settings.videoDevice && settings.drawMouse && "-draw_mouse 1",
 				`-i ${videoInput}`,
 
@@ -401,7 +399,7 @@ export class Lagless2Host {
 				"-c:a mp2",
 				`-b:a ${settings.audioBitrate}k`,
 				"-async 1", // audio sync method// new
-				(settings.muxDelay !== "default") && `-muxdelay ${settings.muxDelay}`,
+				settings.muxDelay !== "default" && `-muxdelay ${settings.muxDelay}`,
 
 				// video:
 				`-r ${settings.framerate}`,
@@ -409,17 +407,17 @@ export class Lagless2Host {
 					settings.resolution
 				}`,
 				// (settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
-				(settings.videoBitrate !== "default") && `-maxrate ${settings.videoBitrate}k`,
+				settings.videoBitrate !== "default" && `-maxrate ${settings.videoBitrate}k`,
 				"-bf 0", // new
 				"-me_method zero", // epzs / zero// new
-				(settings.qmin !== "default") && `-qmin ${settings.qmin}`,
-				(settings.qmax !== "default") && `-qmax ${settings.qmax}`,
-				(settings.groupOfPictures !== "default") && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
+				settings.qmin !== "default" && `-qmin ${settings.qmin}`,
+				settings.qmax !== "default" && `-qmax ${settings.qmax}`,
+				settings.groupOfPictures !== "default" && `-g ${settings.groupOfPictures}`, // group of pictures (gop)
 				// `-video_buffer_size ${settings.videoBufferSize}`,
-				(settings.videoBufferSize !== "default") && `-bufsize ${settings.videoBufferSize}k`,
-				(settings.videoBitrate !== "default") && `-b:v ${settings.videoBitrate}k`,
-				(settings.minVideoBitrate !== "default") && `-minrate ${settings.minVideoBitrate}k`,
-				(settings.maxVideoBitrate !== "default") && `-maxrate ${settings.maxVideoBitrate}k`,
+				settings.videoBufferSize !== "default" && `-bufsize ${settings.videoBufferSize}k`,
+				settings.videoBitrate !== "default" && `-b:v ${settings.videoBitrate}k`,
+				settings.minVideoBitrate !== "default" && `-minrate ${settings.minVideoBitrate}k`,
+				settings.maxVideoBitrate !== "default" && `-maxrate ${settings.maxVideoBitrate}k`,
 				`-c:v ${settings.videoEncoder}`, // mpeg1video
 				"-",
 			];
@@ -456,7 +454,7 @@ export class Lagless2Host {
 			"-ac 1", // new
 			// this.os === "windows" && `-audio_buffer_size ${settings.audioBufferSize}k`, // new
 			// `-audio_buffer_size ${settings.audioBufferSize}k`,
-			(settings.audioBufferSize !== "default") && `-bufsize ${settings.audioBufferSize}k`,
+			settings.audioBufferSize !== "default" && `-bufsize ${settings.audioBufferSize}k`,
 			"-c:a mp2",
 			`-b:a ${settings.audioBitrate}k`,
 			"-async 1", // audio sync method// new

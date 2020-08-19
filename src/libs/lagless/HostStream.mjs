@@ -305,8 +305,8 @@ if (args.user || args.streamKey) {
 
 		playerCount: 1,
 		controllerCount: 0,
-		keyboardEnabled: true,
-		mouseEnabled: true,
+		keyboardEnabled: false,
+		mouseEnabled: false,
 		switchControllerCount: 0,
 		virtualXboxControllerCount: 0,
 		serialPortLocation: null,// /dev/ttyUSB#
