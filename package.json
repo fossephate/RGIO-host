@@ -57,7 +57,7 @@
 		"electron-reload": "^1.5.0",
 		"electron-updater": "^4.3.4",
 		"handlebars": "^4.7.6",
-		"immer": "^7.0.8",
+		"immer": "^8.0.1",
 		"js-cookie": "^2.2.1",
 		"localforage": "^1.9.0",
 		"lodash": "^4.17.20",
