@@ -313,6 +313,7 @@ if (args.user || args.streamKey) {
 		virtualXboxControllerCount: 0,
 		serialPortLocation: null,// /dev/ttyUSB#
 		serialPortNumbers: null,// "[0123]"
+		allowGuestPlayers: false,
 
 		...args,
 	};

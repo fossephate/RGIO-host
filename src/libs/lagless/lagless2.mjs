@@ -7,6 +7,7 @@ import child_process from "child_process";
 const spawn = child_process.spawn;
 import http from "http";
 import socketio from "socket.io-client";
+import { setInterval } from "timers/promises";
 // const IS_MODULE = require.main === module;
 // const IS_MODULE = true;
 
@@ -42,8 +43,10 @@ export class Lagless2Host {
 
 		this.videoStreamTimer = null;
 		this.audioStreamTimer = null;
+		this.restartTimer = null;
 
 		this.stopped = false;
+		this.restartCountLastMinute = 0;
 
 		this.settings = {
 			debug: false,
@@ -194,6 +197,7 @@ export class Lagless2Host {
 		// console.log(`closing code: ${code}`);
 		if (!this.stopped) {
 			console.log("restarting (video)");
+			this.restartCountLastMinute += 1;
 			setTimeout(this.createVideoStream, 500, this.settings);
 		}
 	};
@@ -496,8 +500,17 @@ export class Lagless2Host {
 
 	start = () => {
 		this.stopped = false;
+		this.restartCountLastMinute = 0;
 		clearTimeout(this.videoStreamTimer);
 		clearTimeout(this.audioStreamTimer);
+		clearInterval(this.restartTimer);
+		this.restartTimer = setInterval(() => {
+			if (this.restartCountLastMinute > 10) {
+				process.exit();
+			} else {
+				this.restartCountLastMinute = 0;
+			}
+		}, 1000*60);
 		console.log("ffmpeg " + this.getVideoArgs(this.settings).join(" "));
 		if (this.settings.audioDevice && !this.settings.combineAV) {
 			console.log("ffmpeg " + this.getAudioArgs(this.settings).join(" "));
@@ -519,6 +532,7 @@ export class Lagless2Host {
 		clearInterval(this.authVideoTimer);
 		clearTimeout(this.videoStreamTimer);
 		clearTimeout(this.audioStreamTimer);
+		clearInterval(this.restartTimer);
 		try {
 			this.ffmpegInstanceVideo.off("close", this.handleVideoClose);
 			this.ffmpegInstanceVideo.kill();

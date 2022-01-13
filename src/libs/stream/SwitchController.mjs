@@ -141,6 +141,7 @@ export default class SwitchController {
 
 	reset = () => {
 		this.btns = 0;
+		this.axs = [128, 128, 128, 128];
 		this.axes = [0, 0, 0, 0];
 		// buttons:
 		this.up = 0;
