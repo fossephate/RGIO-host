@@ -56,50 +56,172 @@ this.hostConnection.on("mouseState", (data) => {
 	robot.scrollMouse(0, data.dScroll);
 });
 
-let switchGames = {
-	hat: { pos: 0, name: "A Hat in Time" },
-	acnh: {pos: 1, name: "Animal Crossing: New Horizons"},
-	// "arms":			{ "pos": 0, "name": "Arms" },
-	baba: { pos: 2, name: "Baba Is You" },
-	// "brawlhalla":	{ "pos": 2, "name": "Brawlhalla" },
-	castle: { pos: 3, name: "Castle Crashers Remastered" },
-	celeste: { pos: 4, name: "Celeste" },
-	deltarune: { pos: 5, name: "DELTARUNE Chapter 1" },
-	// "fortnite":		{ "pos": 6, "name": "Fortnite" },
-	hollow: { pos: 6, name: "Hollow Knight" },
-	// "human":		{ "pos": 8, "name": "Human: Fall Flat" },
-	katamari: { pos: 7, name: "Katamari Damacy REROLL" },
-	kirby: { pos: 8, name: "Kirby Star Allies" },
-	lm3: { pos: 9, name: "Luigi's Mansion 3" },
-	mk8: { pos: 10, name: "Mario Kart 8 Deluxe" },
-	mta: { pos: 11, name: "Mario Tennis Aces" },
-	nsmbud: { pos: 12, name: "New Super Mario Bros. U Deluxe" },
-	nes: { pos: 13, name: "Nintendo Entertainment System - Nintendo Switch Online" },
-	// "paladins":		{ "pos": 15, "name": "Paladins" },
-	sword: { pos: 14, name: "Pokemon Sword" },
-	rocketleague: { pos: 15, name: "Rocket League" },
-	shovelknight: { pos: 16, name: "Shovel Knight: Treasure Trove" },
-	snipperclips: { pos: 17, name: "Snipperclips" },
-	sonic: { pos: 18, name: "Sonic Mania" },
-	splatoon2: { pos: 19, name: "Splatoon 2" },
-	smm2: { pos: 20, name: "SUPER MARIO MAKER 2" },
-	smo: { pos: 21, name: "SUPER MARIO ODYSSEY" },
-	snes: { pos: 22, name: "Super Nintendo Entertainment System - Nintendo Switch Online" },
-	smash: { pos: 23, name: "Super Smash Bros. Ultimate" },
-	tetris: { pos: 24, name: "TETRIS 99" },
-	// "skyrim":		{ "pos": 23, "name": "The Elder Scrolls V: Skyrim" },
-	jackbox3: { pos: 25, name: "The Jackbox Party Pack 3" },
-	jackbox4: { pos: 26, name: "The Jackbox Party Pack 4" },
-	jackbox5: { pos: 27, name: "The Jackbox Party Pack 5" },
-	botw: { pos: 28, name: "The Legend of Zelda: Breath of the Wild" },
-	link: { pos: 29, name: "The Legend of Zelda: Link's Awakening" },
-	undertale: { pos: 30, name: "Undertale" },
-	goose: { pos: 31, name: "Untitled Goose Game" },
-	// "wizard":		{ "pos": 31, "name": "Wizard of Legend" },
-};
+let switchGames = [
+	{
+	  name: "A Hat in Time",
+	  short: "hat"
+	},
+	{
+	  name: "Animal Crossing: New Horizons",
+	  short: "acnh"
+	},
+	{
+	  name: "Arms",
+	  short: "arms"
+	},
+	{
+	  name: "Baba Is You",
+	  short: "baba"
+	},
+	// "Brawlhalla",
+	{
+	  name: "Castle Crashers Remastered",
+	  short: "castle"
+	},
+	{
+	  name: "Celeste",
+	  short: "celeste"
+	},
+	{
+	  name: "DELTARUNE Chapter 1&2",
+	  short: "deltarune"
+	},
+	{
+	  name: "Fortnite",
+	  short: "fortnite"
+	},
+	{
+	  name: "Hollow Knight",
+	  short: "hollow"
+	},
+	// "Human: Fall Flat",
+	{
+	  name: "Katamari Damacy REROLL",
+	  short: "katamari"
+	},
+	{
+	  name: "Kirby and the Forgotten Land",
+	  short: "kirby2"
+	},
+	{
+	  name: "Kirby Star Allies",
+	  short: "kirby"
+	},
+	{
+	  name: "Luigi's Mansion 3",
+	  short: "lm3"
+	},
+	{
+	  name: "Mario Kart 8 Deluxe",
+	  short: "mk8"
+	},
+	{
+	  name: "Mario Tennis Aces",
+	  short: "mta"
+	},
+	{
+	  name: "New Super Mario Bros. U Deluxe",
+	  short: "nsmbud"
+	},
+	{
+		name: "Nickelodeon Kart Racers",
+		short: "nick"
+	  },
+	{
+	  name: "Nintendo 64 - Nintendo Switch Online",
+	  short: "n64"
+	},
+	{
+	  name: "Nintendo Entertainment System - Nintendo Switch Online",
+	  short: "nes"
+	},
+	{
+	  name: "Persona 5 Royal",
+	  short: "p5"
+	},
+	// "Paladins",
+	{
+	  name: "Pokemon Sword",
+	  short: "sword"
+	},
+	{
+	  name: "Rocket League",
+	  short: "rocketleague"
+	},
+	{
+	  name: "Shovel Knight: Treasure Trove",
+	  short: "shovelknight"
+	},
+	{
+	  name: "Snipperclips",
+	  short: "snipperclips"
+	},
+	{
+	  name: "Sonic Mania",
+	  short: "sonic"
+	},
+	{
+	  name: "Splatoon 2",
+	  short: "splatoon2"
+	},
+	// "Splatoon 3",
+	{
+	  name: "SUPER MARIO MAKER 2",
+	  short: "smm2"
+	},
+	{
+	  name: "SUPER MARIO ODYSSEY",
+	  short: "smo"
+	},
+	{
+	  name: "Super Nintendo Entertainment System - Nintendo Switch Online",
+	  short: "snes"
+	},
+	{
+	  name: "Super Smash Bros. Ultimate",
+	  short: "smash"
+	},
+	{
+	  name: "TETRIS 99",
+	  short: "tetris"
+	},
+	{
+	  name: "The Elder Scrolls V: Skyrim",
+	  short: "skyrim"
+	},
+	{
+	  name: "The Jackbox Party Pack 3",
+	  short: "jackbox3"
+	},
+	{
+	  name: "The Jackbox Party Pack 4",
+	  short: "jackbox4"
+	},
+	{
+	  name: "The Jackbox Party Pack 5",
+	  short: "jackbox5"
+	},
+	{
+	  name: "The Legend of Zelda: Breath of the Wild",
+	  short: "botw"
+	},
+	{
+	  name: "The Legend of Zelda: Link's Awakening",
+	  short: "link"
+	},
+	{
+	  name: "Undertale",
+	  short: "undertale"
+	},
+	{
+	  name: "Untitled Goose Game",
+	  short: "goose"
+	},
+	// "Wizard of Legend",
+  ];
 
 
-function end_switch_goto_vote(game, delay) {
+function end_switch_goto_vote(gameIndex, delay) {
 
 	let msg = `With ${this.yeaVotes} votes to leave and ${self.nayVotes} to stay`;
 
@@ -129,7 +251,7 @@ function end_switch_goto_vote(game, delay) {
 	// del voted[:]
 
 	if (leaving) {
-		goto_switch_game(game, delay)
+		goto_switch_game(gameIndex, delay)
 	}
 }
 
@@ -161,10 +283,12 @@ async function send_then_reset(controller, delay) {
 	controller.send();
 }
 
-async function goto_switch_game(controllers, gameObj) {
+async function goto_switch_game(controllers, gameIndex) {
 	// disable controls while we do this:
 	controllersEnabled = false;
 	// self.chatEnabled = false;
+
+	let gameObj = switchGames[gameIndex];
 
 	// update current game:
 	currentSwitchGame = gameObj.name;
@@ -181,6 +305,11 @@ async function goto_switch_game(controllers, gameObj) {
 
 	let controller = controllers[0];
 
+	if (controller == undefined) {
+		console.log("controller was null!");
+		return;
+	}
+
 	// get to game selection screen:
 	controller.home = 1
 	await send_then_reset(controller, 100);
@@ -193,7 +322,7 @@ async function goto_switch_game(controllers, gameObj) {
 
 	await sleep(2000);
 
-	let index = gameObj.pos;
+	let index = gameIndex;
 	let timesToMoveDown = parseInt(index / 6);
 	let timesToMoveRight = (index % 6);
 	// console.log(index, timesToMoveDown, timesToMoveRight)
@@ -257,18 +386,37 @@ this.hostConnection.on("chatMessage", (msgObj) => {
 	let results;
 
 
-	// if (text === "!test") {
-	// 	this.hostConnection.emit("botMessage", { text: "reply!" });
-	// 	goto_switch_game(this.controllerManager.controllers, switchGames["goose"]);
-	// }
+	if (text === "!test") {
+		this.hostConnection.emit("botMessage", { text: "reply!" });
+		// goto_switch_game(this.controllerManager.controllers, switchGames["goose"]);
+	}
 
 	reg = /^!goto ([A-Za-z0-9]+)$/;
 	results = reg.exec(text);
 	if (results) {
 		// handle_goto(results[2]);
-		if (switchGames[results[1]]) {
-			goto_switch_game(this.controllerManager.controllers, switchGames[results[1]]);
+		// index where short
+		let index = switchGames.findIndex(x => x.short === results[1]);
+		if (index > -1) {
+			goto_switch_game(this.controllerManager.controllers, index);
 		}
+	}
+
+	reg = /^!help$/;
+	results = reg.exec(text);
+	if (results) {
+		this.hostConnection.emit("botMessage", { text: "use !games for the list of games! !goto <game> to switch games" });
+	}
+
+
+	reg = /^!games$/;
+	results = reg.exec(text);
+	if (results) {
+		let gamesList = [];
+		for (let gameShort in switchGames) {
+			gamesList.push(`${gameShort}: ${switchGames[gameShort].name}`);
+		}
+		this.hostConnection.emit("botMessage", { text: gamesList.join(", ") });
 	}
 
 

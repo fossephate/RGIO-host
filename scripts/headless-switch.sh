@@ -8,5 +8,6 @@ node --experimental-modules ./src/libs/lagless/HostStream.mjs --user="fosse5" --
 --playerCount="4" --switchControllerCount="4" \
 --customScriptLocation="./config/nintendo-switch.js" \
 --serialPortLocation="/dev/ttyUSB" --serialPortNumbers="[0123]" \
---allowGuestPlayers="true"
+--allowGuestPlayers="true" \
+--videoBitrate="2000"
 done

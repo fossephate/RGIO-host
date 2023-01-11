@@ -7,7 +7,7 @@ import child_process from "child_process";
 const spawn = child_process.spawn;
 import http from "http";
 import socketio from "socket.io-client";
-import { setInterval } from "timers/promises";
+// import { setInterval } from "timers/promises";
 // const IS_MODULE = require.main === module;
 // const IS_MODULE = true;
 
@@ -113,6 +113,7 @@ export class Lagless2Host {
 			this.hostConnection = socketio(`https://${options.hostIP}`, {
 				path: `/${options.hostPort}/socket.io`,
 				reconnect: true,
+				forceNew: true,
 			});
 		} else if (options.hostConnection) {
 			this.hostConnection = options.hostConnection;
@@ -122,6 +123,7 @@ export class Lagless2Host {
 			this.videoConnection = socketio(`https://${options.videoIP}`, {
 				path: `/${options.videoPort}/socket.io`,
 				reconnect: true,
+				forceNew: true,
 			});
 		} else if (options.videoConnection) {
 			this.videoConnection = options.videoConnection;
@@ -149,7 +151,9 @@ export class Lagless2Host {
 			this.videoConnection.emit("hostAuthenticate", { streamKey: streamKey });
 		});
 		this.videoConnection.on("disconnect", () => {
-			this.stop();
+			console.log("attempting video server reconnect!");
+			this.videoConnection.socket.connect();
+			// this.stop();
 		});
 		this.authVideoTimer = setInterval(() => {
 			this.videoConnection.emit("hostAuthenticate", { streamKey: streamKey });
@@ -166,6 +170,7 @@ export class Lagless2Host {
 		this.accountConnection = socketio(`https://${options.accountIP}`, {
 			path: `/${options.accountPort}/socket.io`,
 			reconnect: true,
+			forceNew: true,
 		});
 
 		this.accountConnection.on("connect", () => {
@@ -196,8 +201,8 @@ export class Lagless2Host {
 		clearTimeout(this.videoStreamTimer);
 		// console.log(`closing code: ${code}`);
 		if (!this.stopped) {
-			console.log("restarting (video)");
 			this.restartCountLastMinute += 1;
+			console.log(`restarting (video): ${this.restartCountLastMinute}`);
 			setTimeout(this.createVideoStream, 500, this.settings);
 		}
 	};
