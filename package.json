@@ -25,7 +25,7 @@
 		"robotjs": "git+https://github.com/fossephate/robotjs.git",
 		"serialport": "^9.0.1",
 		"simple-peer": "^9.7.2",
-		"socket.io": "^2.3.0"
+		"socket.io": "^2.5.0"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.11.5",
